@@ -367,4 +367,5 @@ export const ui: Record<string, string> = {
   "Moyen": "Fair",
   "Court": "Short",
   "Health Connect n'existe que sur Android. La lecture d'Apple Santé sur iPhone n'est pas encore disponible dans Hojo.": "Health Connect only exists on Android. Reading Apple Health on iPhone is not available in Hojo yet.",
+  "Sauvegarde téléchargée : {file}": "Backup downloaded: {file}",
 };

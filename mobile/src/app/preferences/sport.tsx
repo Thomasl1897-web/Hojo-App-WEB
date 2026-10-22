@@ -1,10 +1,10 @@
 import * as Clipboard from 'expo-clipboard';
 import * as DocumentPicker from 'expo-document-picker';
-import { File } from 'expo-file-system';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, StyleSheet, TextInput } from 'react-native';
 
+import { readPickedText } from '@/lib/pick-file';
 import { PressableFeedback } from '@/components/pressable-feedback';
 import { t } from '@/i18n';
 import { PreferenceScreen } from '@/components/preference-screen';
@@ -98,7 +98,7 @@ export default function SportPreferencesScreen() {
       });
       if (picked.canceled || !picked.assets?.length) return;
 
-      const content = await new File(picked.assets[0].uri).text();
+      const content = await readPickedText(picked.assets[0]);
       await importFromText(content);
     } catch (e) {
       setError(t('Impossible de lire le fichier : {error}', { error: e instanceof Error ? e.message : String(e) }));

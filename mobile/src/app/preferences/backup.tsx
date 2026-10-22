@@ -1,8 +1,8 @@
 import * as DocumentPicker from 'expo-document-picker';
-import { Directory, File } from 'expo-file-system';
+import { Directory } from 'expo-file-system';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, StyleSheet } from 'react-native';
+import { Alert, Platform, StyleSheet } from 'react-native';
 
 import { PressableFeedback } from '@/components/pressable-feedback';
 import { t, tp } from '@/i18n';
@@ -25,6 +25,7 @@ import { formatLongDate, toDateString } from '@/lib/date';
 import { rescheduleIfPermitted } from '@/lib/notifications';
 import { getActivePlanMeta } from '@/lib/nutrition-db';
 import { getActiveSportPlanMeta } from '@/lib/sport-db';
+import { downloadTextFile, readPickedText } from '@/lib/pick-file';
 
 /** Texte des éléments d'une sauvegarde, pour l'aperçu comme pour la confirmation de restauration. */
 function describeContents(summary: BackupSummary): string[] {
@@ -70,8 +71,16 @@ export default function BackupPreferencesScreen() {
     setMessage(null);
     setBusy(true);
     try {
-      const directory = await Directory.pickDirectoryAsync();
       const fileName = `hojo-sauvegarde-${toDateString(new Date())}.json`; // nom de fichier : identique dans toutes les langues
+      if (Platform.OS === 'web') {
+        // Pas de sélecteur de dossier dans un navigateur : le fichier est téléchargé.
+        downloadTextFile(fileName, JSON.stringify(createBackup()));
+        markExported(new Date());
+        load();
+        setMessage(t('Sauvegarde téléchargée : {file}', { file: fileName }));
+        return;
+      }
+      const directory = await Directory.pickDirectoryAsync();
       const file = directory.createFile(fileName, 'application/json');
       file.write(JSON.stringify(createBackup()));
       markExported(new Date());
@@ -116,7 +125,7 @@ export default function BackupPreferencesScreen() {
       });
       if (picked.canceled || !picked.assets?.length) return;
 
-      const content = await new File(picked.assets[0].uri).text();
+      const content = await readPickedText(picked.assets[0]);
       const parsed = parseBackup(content);
       if (!parsed.success) {
         setError(parsed.error);
