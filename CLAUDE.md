@@ -991,6 +991,10 @@ Safari / iPhone** (testée dans le navigateur intégré de Claude, Chromium).
   non fait), pas de vibrations ni de Health Connect sur le web
 - le natif n'est pas touché (export Android, 140 tests et lint repassés après ces changements)
 
+## Dépôt Git et publication
+Dépôt Git **à la racine** (`App Nutrisport/`, branche `main`, `.gitignore` : `backup-sdk54/`, et celui de `mobile/` pour `node_modules`, `dist`, `.expo`). Le dossier `mobile/` avait un dépôt vide (aucun commit) hérité de la création du projet : supprimé, remplacé par celui-ci. Premier commit local ; **pas encore envoyé sur GitHub** (nécessite le compte de l'utilisateur). [netlify.toml](netlify.toml) est à la racine (`base = "mobile"`).
+**Deux circuits de publication, indépendants et jamais automatiques côté Android** : (1) Android : `eas.cmd update --channel preview --platform android --message "…"` pour du JavaScript seul, `eas.cmd build` pour un changement natif (nom, icône, permission, module) ; (2) web : Netlify relié au dépôt GitHub reconstruit le site à chaque envoi (`git push`) ; sans dépôt relié, `npm.cmd run build:web` puis glisser `mobile/dist` sur Netlify. Les deux se font à chaque changement de code visible par les deux ; les fonctions propres à Android (Health Connect, sommeil, rappels) n'existent pas sur le web. Une mise à jour ne touche jamais aux données des personnes.
+
 ## Interactions et retour tactile (Étape E)
 Passe « moins plat », **JS seulement** (`expo-haptics` et Reanimated sont déjà dans le build 1.1.0 : une mise à jour OTA suffit).
 - [haptics.ts](mobile/src/lib/haptics.ts) : `hapticSelection / Light / Success / Warning`, `expo-haptics` chargé par `require`
