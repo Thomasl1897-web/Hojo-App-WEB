@@ -1,0 +1,21 @@
+export const heatmap: Record<string, string> = {
+  Muscles: 'Muscles',
+  'Muscles travaillés': 'Muscles worked',
+  Face: 'Front',
+  'Aucun muscle sollicité': 'No muscle worked',
+  Séance: 'Workout',
+  Exercice: 'Exercise',
+  'Principal : {muscles}': 'Primary: {muscles}',
+  'Secondaire : {muscles}': 'Secondary: {muscles}',
+  "Cet exercice n'est pas reconnu : ses muscles ne sont pas affichés.": 'This exercise is not recognized: its muscles are not shown.',
+  'Aucune série enregistrée sur cette période.': 'No set recorded in this period.',
+  "Pas d'exercice dans la séance du jour.": 'No exercise in the day’s workout.',
+  'Aucun exercice dans le programme.': 'No exercise in the program.',
+  'Aucun exercice à afficher.': 'No exercise to show.',
+  'Séries par muscle ; un muscle secondaire compte pour moitié.': 'Sets per muscle; a secondary muscle counts for half.',
+  "{count} exercice n'est pas reconnu et n'est pas compté : {names}.": '{count} exercise is not recognized and is not counted: {names}.',
+  '{count} exercices ne sont pas reconnus et ne sont pas comptés : {names}.': '{count} exercises are not recognized and are not counted: {names}.',
+  "Identifiants d'exercices disponibles (identifiant — nom) :": 'Available exercise identifiers (identifier — name):',
+  '- "exerciseId" : l\'identifiant de l\'exercice dans la liste ci-dessous quand il en fait partie (même mouvement, quelle que soit la variante d\'équipement) ; omets ce champ pour un exercice qui n\'y figure pas. Ne l\'invente jamais. L\'app s\'en sert pour afficher les muscles travaillés.':
+    '- "exerciseId": the identifier of the exercise in the list below when it is one of them (same movement, whatever the equipment variant); leave this field out for an exercise that is not in it. Never make one up. The app uses it to show the muscles worked.',
+};

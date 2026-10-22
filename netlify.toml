@@ -1,0 +1,9 @@
+# Hébergement Netlify de la version web de Hojo (le projet de l'app est dans le dossier mobile/).
+# Les en-têtes COOP / COEP (mobile/public/_headers) sont indispensables : SQLite sur le web utilise SharedArrayBuffer.
+[build]
+  base = "mobile"
+  command = "npm run build:web"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"

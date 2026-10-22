@@ -1,0 +1,17 @@
+export const muscles: Record<string, string> = {
+  Pectoraux: 'Chest',
+  Épaules: 'Shoulders',
+  Biceps: 'Biceps',
+  Triceps: 'Triceps',
+  'Avant-bras': 'Forearms',
+  Abdominaux: 'Abs',
+  Obliques: 'Obliques',
+  Trapèzes: 'Traps',
+  Dos: 'Back',
+  Lombaires: 'Lower back',
+  Fessiers: 'Glutes',
+  Quadriceps: 'Quads',
+  'Ischio-jambiers': 'Hamstrings',
+  Adducteurs: 'Adductors',
+  Mollets: 'Calves',
+};
