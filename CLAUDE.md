@@ -995,6 +995,32 @@ Safari / iPhone** (testée dans le navigateur intégré de Claude, Chromium).
 Dépôt Git **à la racine** (`App Nutrisport/`, branche `main`, `.gitignore` : `backup-sdk54/`, et celui de `mobile/` pour `node_modules`, `dist`, `.expo`). Le dossier `mobile/` avait un dépôt vide (aucun commit) hérité de la création du projet : supprimé, remplacé par celui-ci. Premier commit local ; **pas encore envoyé sur GitHub** (nécessite le compte de l'utilisateur). [netlify.toml](netlify.toml) est à la racine (`base = "mobile"`).
 **Deux circuits de publication, indépendants et jamais automatiques côté Android** : (1) Android : `eas.cmd update --channel preview --platform android --message "…"` pour du JavaScript seul, `eas.cmd build` pour un changement natif (nom, icône, permission, module) ; (2) web : Netlify relié au dépôt GitHub reconstruit le site à chaque envoi (`git push`) ; sans dépôt relié, `npm.cmd run build:web` puis glisser `mobile/dist` sur Netlify. Les deux se font à chaque changement de code visible par les deux ; les fonctions propres à Android (Health Connect, sommeil, rappels) n'existent pas sur le web. Une mise à jour ne touche jamais aux données des personnes.
 
+## Supersets, tempo, RIR, alternative et séances facultatives (programme « Hybrid Athlete »)
+Ajoutés pour le programme `Documents/Programme Hybrid Athlete – 12 cycles.docx` (converti en
+`Documents/programme-hybrid-athlete.json`, copie de référence dans [tests/data/](mobile/tests/data)) et tout programme du même style.
+- **Format** ([sport-schema.ts](mobile/src/lib/sport-schema.ts)), champs facultatifs d'un exercice : `superset` (même valeur sur des
+  exercices CONSÉCUTIFS ; non consécutifs = refus à l'import), `tempo`, `rir`, `alternative`. D'une séance (mode continu seulement) :
+  `optional: true` = séance facultative, HORS de l'enchaînement (refus : en mode fixe, sur un repos, ou si toutes le sont). Colonnes
+  `superset_group`, `tempo`, `rir`, `alternative` (`sport_exercises`) et `is_optional` (`sport_sessions`) ajoutées par `ALTER TABLE`
+- **Séance en direct** : déroulé dans [session-flow.ts](mobile/src/lib/session-flow.ts) (pur, testé) — superset = séries alternées
+  (5a s1, 5b s1, repos, 5a s2…), pas de repos à l'intérieur d'un tour, repos du groupe (le plus long indiqué) en fin de tour ; un
+  exercice du groupe qui a moins de séries est sauté. L'écran affiche « Superset 5 · exercice 1/2 », le tempo, le RIR et
+  l'alternative ; « reps » n'est ajouté qu'aux répétitions purement numériques (« 8 min », « 10 par côté » restent tels quels)
+- **Facultatives** : enchaînement = séances non facultatives seulement (curseur modulo leur nombre ; l'éditeur ramène la position dans
+  cette liste). Onglet Sport : carte « Séances facultatives » avec « Démarrer › » (`/live-session?position=N`) ; finir une facultative
+  l'enregistre comme faite ce jour-là (`completeOptionalSession`, `INSERT OR IGNORE` : ne remplace pas une séance de l'enchaînement
+  du même jour) SANS faire avancer l'enchaînement
+- **Éditeur** : « Options : superset, tempo, RIR, alternative » repliable par exercice, « Séance facultative » par séance (continu)
+- **Prompts** : décrivent ces champs (exemple de superset dans le mode continu)
+- `isAuxiliaryExercise` reconnaît aussi « Mobilité » / « mobility » / « Respiration » / « breathing » (pas de charge à saisir)
+- répertoire : `tibialis_raise` (rattaché aux « mollets » faute de zone devant le tibia), alias « marche de valise / suitcase carry »
+  (`farmers_walk`), « squat cosaque » (`lateral_lunge`), « pronation supination » (`wrist_curl`)
+- avertissement « aucune séance de repos » du mode continu reformulé (un enchaînement sans repos est normal : il attend que tu sois prêt)
+- **non converti** dans le JSON (pas de champ pour) : la progression sur 12 cycles (phases, décharges), les tableaux de règles et de
+  douleur — résumés dans les notes des échauffements ; le cardio (zone 2, fractionné) reste à saisir comme « autre activité »
+- testé : `tests/supersets.test.ts` (8 tests) + vérifié dans le navigateur (import du programme, carte des facultatives, alternance
+  5a → 5b → repos 1:00 → 5a série 2, séance facultative lancée par sa position)
+
 ## Interactions et retour tactile (Étape E)
 Passe « moins plat », **JS seulement** (`expo-haptics` et Reanimated sont déjà dans le build 1.1.0 : une mise à jour OTA suffit).
 - [haptics.ts](mobile/src/lib/haptics.ts) : `hapticSelection / Light / Success / Warning`, `expo-haptics` chargé par `require`
@@ -1010,7 +1036,7 @@ Passe « moins plat », **JS seulement** (`expo-haptics` et Reanimated sont déj
 - testé : `revealDelay`, réglage haptique (125 tests)
 
 ## Tests automatiques
-Dossier [mobile/tests/](mobile/tests), **140 tests** (`npm test` dans `mobile/`, moins d'une seconde ;
+Dossier [mobile/tests/](mobile/tests), **149 tests** (`npm test` dans `mobile/`, moins d'une seconde ;
 `npm run test:types` vérifie le typage des tests). **Aucune dépendance de test** : Node 24 exécute le
 TypeScript directement (`node --test`), un chargeur ([loader.mjs](mobile/tests/loader.mjs)) résout
 l'alias `@/…` et remplace les modules natifs par des bouchons ([stubs/](mobile/tests/stubs)) :

@@ -28,8 +28,7 @@ export const libPlans: Record<string, string> = {
   'La séance #{number} ("{name}")': 'Session #{number} ("{name}")',
   'Aucun jour de repos sur la semaine — le surentraînement augmente le risque de blessure, envisage de régénérer un plan avec au moins un jour de récupération.':
     'No rest day in the week — overtraining increases the risk of injury, consider generating a new plan with at least one recovery day.',
-  "Aucune séance de repos dans l'enchaînement — envisage d'en ajouter une pour éviter le surentraînement.":
-    'No rest session in the sequence — consider adding one to avoid overtraining.',
+  "Aucune séance de repos dans l'enchaînement : pense à garder des jours off entre les séances (l'enchaînement attend que tu sois prêt).": "No rest session in the rotation: remember to keep days off between sessions (the rotation waits until you are ready).",
 
   // Sauvegarde
   "Ce fichier n'est pas une sauvegarde valide (JSON illisible).": 'This file is not a valid backup (unreadable JSON).',

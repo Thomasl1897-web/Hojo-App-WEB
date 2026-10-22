@@ -13,6 +13,11 @@ export type DraftExercise = {
   restSeconds: string;
   note?: string;
   exerciseId?: string;
+  /** Même valeur sur des exercices qui se suivent = superset. Vide = exercice seul. */
+  superset?: string;
+  tempo?: string;
+  rir?: string;
+  alternative?: string;
 };
 
 export type DraftSession = {
@@ -21,6 +26,8 @@ export type DraftSession = {
   exercises: DraftExercise[];
   /** Mode "fixe" uniquement. */
   weekday?: Weekday;
+  /** Mode continu : séance facultative, hors de l'enchaînement. */
+  optional?: boolean;
 };
 
 export type SportDraft = {
@@ -48,12 +55,13 @@ export function newDraft(mode: 'fixe' | 'continu'): SportDraft {
 
 export function planToDraft(plan: SportPlan): SportDraft {
   const toSession = (
-    s: { sessionName: string; isRestDay: boolean; exercises: Exercise[] },
+    s: { sessionName: string; isRestDay: boolean; exercises: Exercise[]; optional?: boolean },
     weekday?: Weekday,
   ): DraftSession => ({
     sessionName: s.sessionName,
     isRestDay: s.isRestDay,
     weekday,
+    optional: s.optional,
     exercises: s.exercises.map((e) => ({
       name: e.name,
       sets: String(e.sets),
@@ -61,6 +69,10 @@ export function planToDraft(plan: SportPlan): SportDraft {
       restSeconds: String(e.restSeconds),
       note: e.note,
       exerciseId: e.exerciseId,
+      superset: e.superset,
+      tempo: e.tempo,
+      rir: e.rir,
+      alternative: e.alternative,
     })),
   });
   return {
@@ -74,6 +86,12 @@ export function planToDraft(plan: SportPlan): SportDraft {
 export type DraftResult =
   | { success: true; plan: SportPlan; raw: string; warnings: string[] }
   | { success: false; error: string };
+
+/** Champ texte facultatif : présent seulement s'il n'est pas vide. */
+function optionalText<K extends string>(key: K, value: string | undefined): Partial<Record<K, string>> {
+  const trimmed = value?.trim();
+  return trimmed ? ({ [key]: trimmed } as Record<K, string>) : {};
+}
 
 function parseWhole(text: string): number | null {
   return /^\d+$/.test(text.trim()) ? Number(text.trim()) : null;
@@ -119,10 +137,20 @@ export function draftToPlan(draft: SportDraft): DraftResult {
           restSeconds: rest,
           ...(e.note ? { note: e.note } : {}),
           ...(e.exerciseId ? { exerciseId: e.exerciseId } : {}),
+          ...optionalText('superset', e.superset),
+          ...optionalText('tempo', e.tempo),
+          ...optionalText('rir', e.rir),
+          ...optionalText('alternative', e.alternative),
         });
       }
     }
-    sessions.push({ sessionName, isRestDay: s.isRestDay, exercises, weekday: s.weekday });
+    sessions.push({
+      sessionName,
+      isRestDay: s.isRestDay,
+      exercises,
+      weekday: s.weekday,
+      ...(s.optional && !s.isRestDay && draft.mode === 'continu' ? { optional: true } : {}),
+    });
   }
 
   const base = { type: 'sport', mode: draft.mode, name: draft.name.trim(), preferredTime: draft.preferredTime.trim() };

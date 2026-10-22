@@ -19,6 +19,7 @@ import {
   getActiveSportPlanMeta,
   getAllActivityDates,
   getCurrentSession,
+  getOptionalSessions,
   getExerciseLogRows,
   getLoggedExercises,
   getSessionProgress,
@@ -71,6 +72,7 @@ export default function SportScreen() {
   const [planMeta, setPlanMeta] = useState<SportPlanMeta | null>(null);
   const [currentSession, setCurrentSession] = useState<{ mode: SportMode; session: SportSessionRow } | null>(null);
   const [completedToday, setCompletedToday] = useState<string | null>(null);
+  const [optionalSessions, setOptionalSessions] = useState<SportSessionRow[]>([]);
   const [inProgress, setInProgress] = useState(false);
   const [activityDates, setActivityDates] = useState<string[]>([]);
   const [exercises, setExercises] = useState<LoggedExercise[]>([]);
@@ -86,6 +88,7 @@ export default function SportScreen() {
     const current = getCurrentSession();
     setCurrentSession(current);
     setCompletedToday(getTodayCompletedSessionName());
+    setOptionalSessions(getOptionalSessions());
     setInProgress(current ? getSessionProgress(current.session.sessionName) !== null : false);
     setActivityDates(getAllActivityDates());
     setExercises(getLoggedExercises());
@@ -180,6 +183,33 @@ export default function SportScreen() {
                   </PressableFeedback>
                 </>
               )}
+            </ThemedView>
+          )}
+
+          {optionalSessions.length > 0 && (
+            <ThemedView type="backgroundElement" style={styles.card}>
+              <ThemedText type="eyebrow" themeColor="textFaint">
+                {t('Séances facultatives')}
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                {t("Quand tu veux, par exemple un jour off : elles ne font pas avancer l'enchaînement.")}
+              </ThemedText>
+              {optionalSessions.map((optional) => (
+                <PressableFeedback
+                  key={optional.position}
+                  onPress={() => router.push({ pathname: '/live-session', params: { position: String(optional.position) } })}
+                  style={styles.optionalRow}>
+                  <ThemedView style={styles.optionalText}>
+                    <ThemedText type="smallBold">{optional.sessionName}</ThemedText>
+                    <ThemedText type="small" themeColor="textSecondary">
+                      {tp(optional.exercises.length, '{count} exercice', '{count} exercices')}
+                    </ThemedText>
+                  </ThemedView>
+                  <ThemedText type="link" themeColor="accent">
+                    {t('Démarrer ›')}
+                  </ThemedText>
+                </PressableFeedback>
+              ))}
             </ThemedView>
           )}
 
@@ -299,6 +329,18 @@ function capitalize(text: string) {
 }
 
 const styles = StyleSheet.create({
+  optionalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.two,
+    paddingVertical: Spacing.one,
+  },
+  optionalText: {
+    flex: 1,
+    gap: 2,
+    backgroundColor: 'transparent',
+  },
   container: {
     flex: 1,
   },

@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, StyleSheet, TextInput, Vibration } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,31 +13,24 @@ import { Fonts, Spacing } from '@/constants/theme';
 import { useSessionKeepAwake } from '@/hooks/use-session-keep-awake';
 import { useTheme } from '@/hooks/use-theme';
 import { cancelScheduledNotification, scheduleRestEndNotification } from '@/lib/notifications';
+import { nextPosition, restAfter, supersetInfo, type Position } from '@/lib/session-flow';
 import { formatSetEntry, parseSetEntry, parseTargetReps, type SetEntry } from '@/lib/set-entry';
 import { formatWeight, isAuxiliaryExercise } from '@/lib/sport-stats';
 import {
   completeCurrentSession,
+  completeOptionalSession,
   getCurrentSession,
+  getSessionAtPosition,
   getLastSessionWeights,
   getSessionProgress,
   getWeightHistory,
   logSetWeight,
   saveSessionProgress,
-  type SportSessionRow,
   type WeightHistoryPoint,
   type WeightLogEntry,
 } from '@/lib/sport-db';
 
 type Phase = 'exercise' | 'resting' | 'finished';
-
-/** Position qui suit (exercice, série) dans la séance, ou null si on vient de finir la dernière. */
-function nextPosition(session: SportSessionRow, exerciseIndex: number, currentSet: number) {
-  const exercise = session.exercises[exerciseIndex];
-  if (!exercise) return null;
-  if (currentSet < exercise.sets) return { exerciseIndex, currentSet: currentSet + 1 };
-  if (exerciseIndex < session.exercises.length - 1) return { exerciseIndex: exerciseIndex + 1, currentSet: 1 };
-  return null;
-}
 
 function formatShortDate(isoDate: string): string {
   const [, month, day] = isoDate.split('-');
@@ -47,9 +40,14 @@ function formatShortDate(isoDate: string): string {
 export default function LiveSessionScreen() {
   const theme = useTheme();
   useSessionKeepAwake();
+  // `position` : séance facultative lancée depuis l'onglet Sport (sinon, la séance du jour / la suivante).
+  const params = useLocalSearchParams<{ position?: string }>();
   // La séance et la position sauvegardée sont lues une seule fois, à l'ouverture de l'écran.
   const [initial] = useState(() => {
-    const found = getCurrentSession()?.session ?? null;
+    const optionalPosition = params.position !== undefined ? Number(params.position) : NaN;
+    const found = Number.isInteger(optionalPosition)
+      ? getSessionAtPosition(optionalPosition)
+      : (getCurrentSession()?.session ?? null);
     const saved = found ? getSessionProgress(found.sessionName) : null;
     const validSaved = saved && saved.exerciseIndex < (found?.exercises.length ?? 0) ? saved : null;
     return { session: found, saved: validSaved };
@@ -64,9 +62,18 @@ export default function LiveSessionScreen() {
   const [typedWeight, setTypedWeight] = useState<{ key: string; value: string } | null>(null);
   const [musclesOpen, setMusclesOpen] = useState(false);
   const [typedReps, setTypedReps] = useState<{ key: string; value: string } | null>(null);
+  // Où aller après le repos (calculé en validant la série) ; null = fin de séance.
+  const [pending, setPending] = useState<Position | null>(null);
 
   const exercise = session?.exercises[exerciseIndex] ?? null;
   const exerciseName = exercise?.name;
+  const superset = session ? supersetInfo(session.exercises, exerciseIndex) : null;
+
+  // Une séance facultative compte comme faite sans faire avancer l'enchaînement.
+  const completeSession = useCallback(() => {
+    if (session?.isOptional) completeOptionalSession(session.sessionName);
+    else completeCurrentSession();
+  }, [session]);
 
   // Relu à chaque changement d'exercice seulement : l'historique affiché ne bouge pas en cours de série.
   const lastSessionWeights = useMemo<WeightLogEntry[]>(
@@ -100,26 +107,23 @@ export default function LiveSessionScreen() {
   // sonnera dans le vide quelques minutes plus tard.
   useEffect(() => clearRestNotification, [clearRestNotification]);
 
-  const advanceAfterRest = useCallback(() => {
-    clearRestNotification();
-    setRestEndsAt(null);
-    if (!session || !exercise) return;
+  const goTo = useCallback(
+    (next: Position | null) => {
+      clearRestNotification();
+      setRestEndsAt(null);
+      if (next) {
+        setExerciseIndex(next.exerciseIndex);
+        setCurrentSet(next.currentSet);
+        setPhase('exercise');
+      } else {
+        completeSession();
+        setPhase('finished');
+      }
+    },
+    [clearRestNotification, completeSession],
+  );
 
-    if (currentSet < exercise.sets) {
-      setCurrentSet((s) => s + 1);
-      setPhase('exercise');
-      return;
-    }
-
-    if (exerciseIndex < session.exercises.length - 1) {
-      setExerciseIndex((i) => i + 1);
-      setCurrentSet(1);
-      setPhase('exercise');
-    } else {
-      completeCurrentSession();
-      setPhase('finished');
-    }
-  }, [clearRestNotification, session, exercise, currentSet, exerciseIndex]);
+  const advanceAfterRest = useCallback(() => goTo(pending), [goTo, pending]);
 
   /*
    * Le temps restant est recalculé depuis un timestamp de fin plutôt que décrémenté seconde
@@ -151,16 +155,19 @@ export default function LiveSessionScreen() {
     if (entry) logSetWeight(exercise.name, currentSet, entry.weight, entry.reps);
     // On sauvegarde la position SUIVANTE : si l'utilisateur quitte pendant le repos, il
     // reprendra à la série qu'il doit faire, pas à celle qu'il vient de terminer.
-    const next = nextPosition(session, exerciseIndex, currentSet);
+    const next = nextPosition(session.exercises, exerciseIndex, currentSet);
     if (next) saveSessionProgress(session.sessionName, next);
 
-    if (exercise.restSeconds > 0) {
-      setRestEndsAt(Date.now() + exercise.restSeconds * 1000);
-      setRemainingRestSeconds(exercise.restSeconds);
+    // Dans un superset, on enchaîne sans repos jusqu'à la fin du tour.
+    const rest = next ? restAfter(session.exercises, exerciseIndex, currentSet) : 0;
+    if (rest > 0) {
+      setPending(next);
+      setRestEndsAt(Date.now() + rest * 1000);
+      setRemainingRestSeconds(rest);
       setPhase('resting');
-      restNotificationId.current = await scheduleRestEndNotification(exercise.restSeconds);
+      restNotificationId.current = await scheduleRestEndNotification(rest);
     } else {
-      advanceAfterRest();
+      goTo(next);
     }
   }
 
@@ -179,9 +186,7 @@ export default function LiveSessionScreen() {
     if (exerciseIndex < session.exercises.length - 1) {
       goToExercise(exerciseIndex + 1);
     } else {
-      clearRestNotification();
-      completeCurrentSession();
-      setPhase('finished');
+      goTo(null);
     }
   }
 
@@ -199,7 +204,7 @@ export default function LiveSessionScreen() {
       {
         text: t('Terminer la séance'),
         onPress: () => {
-          completeCurrentSession();
+          completeSession();
           router.back();
         },
       },
@@ -263,9 +268,32 @@ export default function LiveSessionScreen() {
             <ThemedText type="title" style={styles.centerText}>
               {exercise.name}
             </ThemedText>
+            {superset && (
+              <ThemedText type="eyebrow" themeColor="accent" style={styles.centerText}>
+                {t('Superset {label} · exercice {rank}/{size}', { label: superset.label, rank: superset.rank, size: superset.size })}
+              </ThemedText>
+            )}
             <ThemedText type="data" themeColor="accent" style={styles.centerText}>
-              {t('Série {current}/{total} · {reps} reps', { current: currentSet, total: exercise.sets, reps: exercise.reps })}
+              {/^\d+(\s*-\s*\d+)?$/.test(exercise.reps.trim())
+                ? t('Série {current}/{total} · {reps} reps', { current: currentSet, total: exercise.sets, reps: exercise.reps })
+                : // « 8 min », « 10 par côté », « 30-45 s » : l'unité est déjà dans le texte.
+                  t('Série {current}/{total} · {reps}', { current: currentSet, total: exercise.sets, reps: exercise.reps })}
             </ThemedText>
+            {(exercise.tempo || exercise.rir) && (
+              <ThemedText type="small" themeColor="textSecondary" style={styles.centerText}>
+                {[
+                  exercise.tempo ? t('Tempo {tempo}', { tempo: exercise.tempo }) : null,
+                  exercise.rir ? t('RIR {rir}', { rir: exercise.rir }) : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </ThemedText>
+            )}
+            {exercise.alternative && (
+              <ThemedText type="small" themeColor="textFaint" style={styles.centerText}>
+                {t('Alternative : {alternative}', { alternative: exercise.alternative })}
+              </ThemedText>
+            )}
             {exercise.note && (
               <ThemedText type="small" themeColor="textSecondary" style={styles.centerText}>
                 {exercise.note}
@@ -368,9 +396,12 @@ export default function LiveSessionScreen() {
               {formatSeconds(remainingRestSeconds)}
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary" style={styles.centerText}>
-              {currentSet < exercise.sets
-                ? t('Prochain : {name} — série {number}', { name: exercise.name, number: currentSet + 1 })
-                : t('Prochain : {name} — série 1 ({next})', { name: exercise.name, next: nextExerciseName(session, exerciseIndex) })}
+              {pending
+                ? t('Prochain : {name} — série {number}', {
+                    name: session.exercises[pending.exerciseIndex]?.name ?? '',
+                    number: pending.currentSet,
+                  })
+                : t('fin de séance')}
             </ThemedText>
             <PressableFeedback onPress={advanceAfterRest} haptic="light">
               <ThemedView type="backgroundElement" style={styles.bigButton}>
@@ -393,11 +424,6 @@ export default function LiveSessionScreen() {
 function lastEntryForSet(entries: WeightLogEntry[], setNumber: number): SetEntry | null {
   const found = entries.find((entry) => entry.setNumber === setNumber);
   return found ? { weight: found.weight, reps: found.reps } : null;
-}
-
-function nextExerciseName(session: SportSessionRow, currentIndex: number): string {
-  const next = session.exercises[currentIndex + 1];
-  return next ? next.name : t('fin de séance');
 }
 
 function formatSeconds(totalSeconds: number): string {

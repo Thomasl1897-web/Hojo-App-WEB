@@ -150,6 +150,14 @@ const EXERCISE_ID_RULE = msg(
   "- \"exerciseId\" : l'identifiant de l'exercice dans la liste ci-dessous quand il en fait partie (même mouvement, quelle que soit la variante d'équipement) ; omets ce champ pour un exercice qui n'y figure pas. Ne l'invente jamais. L'app s'en sert pour afficher les muscles travaillés.",
 );
 
+const DETAIL_FIELDS_RULE = msg(
+  '- Champs facultatifs d\'un exercice : "superset" (même valeur, par exemple "5", sur des exercices CONSÉCUTIFS à enchaîner en alternant les séries ; mets le repos sur le dernier du groupe et 0 sur les autres), "tempo" (par exemple "3-0-1"), "rir" (répétitions gardées en réserve, par exemple "1-2"), "alternative" (variante si le matériel manque ou en cas de gêne). N\'écris pas ces informations dans le nom de l\'exercice.',
+);
+
+const OPTIONAL_SESSION_RULE = msg(
+  '- "optional": true sur une séance facultative (mobilité, récupération, routine courte) : elle reste hors de l\'enchaînement et se lance à la demande. Ne le mets jamais sur toutes les séances.',
+);
+
 function jsonFormatInstructions(mode: SportMode): string {
   const shared = `${t(
     'IMPORTANT — FORMAT DE LIVRAISON : génère le résultat sous forme de FICHIER .json TÉLÉCHARGEABLE (nomme-le "plan-sport.json"). Si ton interface ne permet pas de produire un fichier téléchargeable, affiche le JSON complet dans un unique bloc de code.',
@@ -176,7 +184,7 @@ function jsonFormatInstructions(mode: SportMode): string {
       "sessionName": ${sessionName},
       "isRestDay": false,
       "exercises": [
-        { "name": ${benchPress}, "exerciseId": "bench_press", "sets": 4, "reps": "8-12", "restSeconds": 90, "note": ${benchNote} }
+        { "name": ${benchPress}, "exerciseId": "bench_press", "sets": 4, "reps": "8-12", "restSeconds": 90, "tempo": "3-0-1", "rir": "1-2", "note": ${benchNote} }
       ]
     },
     {
@@ -198,6 +206,7 @@ function jsonFormatInstructions(mode: SportMode): string {
       t('- "isRestDay": true → "exercises" doit être un tableau VIDE. "isRestDay": false → au moins un exercice obligatoire'),
       t('- "sets" est un entier, "reps" est du texte libre ("8-12", "AMRAP", "30s"...), "restSeconds" est un entier en secondes'),
       t(EXERCISE_ID_RULE),
+      t(DETAIL_FIELDS_RULE),
       t(
         '- Ne mets aucun commentaire ni texte hors du JSON, ne tronque jamais, n\'utilise pas de "..." : les 7 jours doivent être écrits en entier',
       ),
@@ -221,14 +230,16 @@ function jsonFormatInstructions(mode: SportMode): string {
       "sessionName": ${sessionName},
       "isRestDay": false,
       "exercises": [
-        { "name": ${benchPress}, "exerciseId": "bench_press", "sets": 4, "reps": "8-12", "restSeconds": 90, "note": ${benchNote} }
+        { "name": ${benchPress}, "exerciseId": "bench_press", "sets": 4, "reps": "8-12", "restSeconds": 90, "tempo": "3-0-1", "rir": "1-2", "note": ${benchNote} }
       ]
     },
     {
       "sessionName": ${JSON.stringify(t('Pull (dos, biceps)'))},
       "isRestDay": false,
       "exercises": [
-        { "name": ${JSON.stringify(t('Tirage horizontal'))}, "exerciseId": "barbell_row", "sets": 4, "reps": "8-12", "restSeconds": 90 }
+        { "name": ${JSON.stringify(t('Tirage horizontal'))}, "exerciseId": "barbell_row", "sets": 4, "reps": "8-12", "restSeconds": 90 },
+        { "name": ${JSON.stringify(t('Curl haltères'))}, "exerciseId": "biceps_curl", "sets": 3, "reps": "10-12", "restSeconds": 0, "superset": "2" },
+        { "name": ${JSON.stringify(t('Barre au front'))}, "exerciseId": "skullcrusher", "sets": 3, "reps": "10-12", "restSeconds": 60, "superset": "2" }
       ]
     },
     {
@@ -256,6 +267,8 @@ function jsonFormatInstructions(mode: SportMode): string {
     t('- "isRestDay": true → "exercises" doit être un tableau VIDE. "isRestDay": false → au moins un exercice obligatoire'),
     t('- "sets" est un entier, "reps" est du texte libre ("8-12", "AMRAP", "30s"...), "restSeconds" est un entier en secondes'),
     t(EXERCISE_ID_RULE),
+    t(DETAIL_FIELDS_RULE),
+    t(OPTIONAL_SESSION_RULE),
     t(
       '- Ne mets aucun commentaire ni texte hors du JSON, ne tronque jamais, n\'utilise pas de "..." : l\'enchaînement complet doit être écrit en entier',
     ),

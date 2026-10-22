@@ -12,6 +12,17 @@ export const exerciseSchema = z.object({
   note: z.string().optional(),
   /** Identifiant de l'exercice dans le répertoire de l'app (facultatif ; sinon le nom est reconnu). */
   exerciseId: z.string().optional(),
+  /**
+   * Superset : des exercices CONSÉCUTIFS portant la même valeur (ex. "5") s'enchaînent en alternant les
+   * séries (5a série 1, 5b série 1, repos, 5a série 2…). Le repos se prend après le dernier du groupe.
+   */
+  superset: z.string().min(1).optional(),
+  /** Tempo d'exécution (ex. "3-0-1" : 3 s en descente, sans pause, 1 s en montée). */
+  tempo: z.string().min(1).optional(),
+  /** Répétitions gardées en réserve (« reps in reserve », ex. "1-2"). */
+  rir: z.string().min(1).optional(),
+  /** Variante si le matériel manque ou en cas de gêne. */
+  alternative: z.string().min(1).optional(),
 });
 
 export type Exercise = z.infer<typeof exerciseSchema>;
@@ -21,6 +32,11 @@ export const sportSessionSchema = z.object({
   sessionName: z.string().min(1),
   isRestDay: z.boolean(),
   exercises: z.array(exerciseSchema),
+  /**
+   * Mode continu seulement : séance facultative (mobilité, récupération…). Elle reste HORS de l'enchaînement
+   * et se lance à la demande depuis l'onglet Sport ; la faire ne fait pas avancer l'enchaînement.
+   */
+  optional: z.boolean().optional(),
 });
 
 export type SportSession = z.infer<typeof sportSessionSchema>;
@@ -75,9 +91,26 @@ export type SportParseResult =
   | { success: true; data: SportPlan; warnings: string[] }
   | { success: false; error: string };
 
+/** Un superset doit regrouper des exercices qui se suivent : « 5a, 6, 5b » ne peut pas s'enchaîner en alternance. */
+function validateSupersets(session: SportSession, label: string): string | null {
+  const closed = new Set<string>();
+  let previous: string | undefined;
+  for (const exercise of session.exercises) {
+    const group = exercise.superset;
+    if (group !== previous && previous !== undefined) closed.add(previous);
+    if (group !== undefined && closed.has(group)) {
+      return t('{label} : les exercices du superset "{group}" doivent se suivre.', { label, group });
+    }
+    previous = group;
+  }
+  return null;
+}
+
 function validateSessionConsistency(sessions: SportSession[], labelFor: (index: number) => string): string | null {
   for (let i = 0; i < sessions.length; i++) {
     const s = sessions[i];
+    const supersetError = validateSupersets(s, labelFor(i));
+    if (supersetError) return supersetError;
     if (!s.isRestDay && s.exercises.length === 0) {
       return t('{label} n\'est pas marqué "repos" mais ne contient aucun exercice.', { label: labelFor(i) });
     }
@@ -132,6 +165,9 @@ export function parseSportPlan(raw: string): SportParseResult {
 
     const error = validateSessionConsistency(plan.days, (i) => t('Le jour "{day}"', { day: t(plan.days[i].weekday) }));
     if (error) return { success: false, error };
+    if (plan.days.some((d) => d.optional)) {
+      return { success: false, error: t('Les séances facultatives ("optional") n\'existent qu\'en mode continu.') };
+    }
 
     const restCount = plan.days.filter((d) => d.isRestDay).length;
     if (restCount === 0) {
@@ -144,11 +180,17 @@ export function parseSportPlan(raw: string): SportParseResult {
   } else {
     const error = validateSessionConsistency(plan.sequence, (i) => t('La séance #{number} ("{name}")', { number: i + 1, name: plan.sequence[i].sessionName }));
     if (error) return { success: false, error };
+    if (plan.sequence.every((session) => session.optional)) {
+      return { success: false, error: t("L'enchaînement ne contient que des séances facultatives : il en faut au moins une qui ne l'est pas.") };
+    }
+    if (plan.sequence.some((session) => session.optional && session.isRestDay)) {
+      return { success: false, error: t('Une séance de repos ne peut pas être facultative.') };
+    }
 
     const hasRest = plan.sequence.some((s) => s.isRestDay);
     if (!hasRest) {
       warnings.push(
-        t("Aucune séance de repos dans l'enchaînement — envisage d'en ajouter une pour éviter le surentraînement."),
+        t("Aucune séance de repos dans l'enchaînement : pense à garder des jours off entre les séances (l'enchaînement attend que tu sois prêt)."),
       );
     }
   }

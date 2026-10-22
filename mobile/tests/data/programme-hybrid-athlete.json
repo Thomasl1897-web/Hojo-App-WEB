@@ -1,0 +1,584 @@
+{
+  "type": "sport",
+  "mode": "continu",
+  "name": "Hybrid Athlete – 12 cycles",
+  "preferredTime": "18:00",
+  "sequence": [
+    {
+      "sessionName": "A · Haut du corps – poussée",
+      "isRestDay": false,
+      "exercises": [
+        {
+          "name": "Échauffement haut du corps (8 min)",
+          "sets": 1,
+          "reps": "8 min",
+          "restSeconds": 0,
+          "note": "Chat-vache × 10 · rotations thoraciques au sol (open book) × 8/côté · pull-aparts à l'élastique 2 × 15 · rotation externe à l'élastique 2 × 12 · pompes lentes × 10 · 1-2 séries d'approche légères du développé couché. RÈGLES : 3 à 4 séances sur 7 jours, au maximum 2 jours de musculation d'affilée. Pas de B ni de D dans les 24 h (idéalement 48 h) avant un match ou un fractionné intense : fais A ou C à la place. PROGRESSION : quand tu atteins le haut de la fourchette sur toutes les séries au RIR visé, +1 à 2 kg par haltère et repars en bas de fourchette."
+        },
+        {
+          "name": "Pompes explosives (bloc athlétique)",
+          "exerciseId": "push_up",
+          "sets": 3,
+          "reps": "5",
+          "restSeconds": 60,
+          "note": "Mains décollées. Qualité maximale : arrête dès que la vitesse baisse."
+        },
+        {
+          "name": "Développé couché haltères, banc plat",
+          "exerciseId": "bench_press",
+          "sets": 4,
+          "reps": "6-10",
+          "restSeconds": 150,
+          "tempo": "3-0-1",
+          "rir": "2",
+          "alternative": "Développé au sol (épaules sensibles)",
+          "note": "Ouvre la séance : c'est là que la charge progressera le plus."
+        },
+        {
+          "name": "Rowing haltère un bras, appui banc",
+          "exerciseId": "barbell_row",
+          "sets": 3,
+          "reps": "8-12 par bras",
+          "restSeconds": 90,
+          "rir": "1-2",
+          "alternative": "Rowing élastique assis",
+          "note": "Entre deux poussées, il équilibre les épaules."
+        },
+        {
+          "name": "Développé incliné haltères 30°",
+          "exerciseId": "incline_press",
+          "sets": 3,
+          "reps": "8-12",
+          "restSeconds": 120,
+          "rir": "1-2",
+          "alternative": "Pompes pieds surélevés lestées"
+        },
+        {
+          "name": "Développé épaules assis, banc vertical",
+          "exerciseId": "overhead_press",
+          "sets": 3,
+          "reps": "8-12",
+          "restSeconds": 90,
+          "rir": "1-2",
+          "alternative": "Développé un bras à genoux"
+        },
+        {
+          "name": "Élévations latérales haltères",
+          "exerciseId": "lateral_raise",
+          "sets": 3,
+          "reps": "12-20",
+          "restSeconds": 0,
+          "superset": "5",
+          "rir": "0-1",
+          "alternative": "Élévations latérales à l'élastique"
+        },
+        {
+          "name": "Face pull à l'élastique (ancré à hauteur du visage)",
+          "exerciseId": "face_pull",
+          "sets": 3,
+          "reps": "15-20",
+          "restSeconds": 60,
+          "superset": "5",
+          "rir": "1-2",
+          "alternative": "Oiseau haltères, buste penché"
+        },
+        {
+          "name": "Extension triceps haltère au-dessus de la tête",
+          "exerciseId": "overhead_triceps",
+          "sets": 3,
+          "reps": "10-15",
+          "restSeconds": 0,
+          "superset": "6",
+          "rir": "1",
+          "alternative": "Extension triceps à l'élastique"
+        },
+        {
+          "name": "Curl marteau",
+          "exerciseId": "hammer_curl",
+          "sets": 3,
+          "reps": "10-15",
+          "restSeconds": 60,
+          "superset": "6",
+          "rir": "1",
+          "alternative": "Curl marteau à l'élastique"
+        },
+        {
+          "name": "Rotation externe d'épaule à 90° (élastique)",
+          "exerciseId": "external_rotation",
+          "sets": 2,
+          "reps": "15",
+          "restSeconds": 0,
+          "superset": "7",
+          "rir": "2-3",
+          "note": "Prévention : protège l'épaule pour les sports de raquette."
+        },
+        {
+          "name": "Flexion / extension du poignet, haltère léger",
+          "exerciseId": "wrist_curl",
+          "sets": 2,
+          "reps": "15",
+          "restSeconds": 30,
+          "superset": "7",
+          "rir": "2-3",
+          "note": "Prévention : protège le coude et le poignet."
+        }
+      ]
+    },
+    {
+      "sessionName": "B · Bas du corps – dominante genou",
+      "isRestDay": false,
+      "exercises": [
+        {
+          "name": "Échauffement bas du corps (8 min)",
+          "sets": 1,
+          "reps": "8 min",
+          "restSeconds": 0,
+          "note": "90/90 changements de hanche × 10 · cheville genou-au-mur × 10/côté · pont fessier × 15 · squat gobelet tenu en bas 30 s (talons surélevés si besoin) · Spanish squat isométrique à l'élastique 2 × 30 s. Pas de B ni de D dans les 24 h (idéalement 48 h) avant un match de raquette ou un fractionné intense. GENOU (douleur de 0 à 10) : 0-3 acceptable ; 4-5 réduis l'amplitude ou la charge ; plus de 5 ou douleur aiguë, arrête l'exercice et reste sur le Spanish squat isométrique. Si le genou gêne pendant la séance : remplace le bloc athlétique par 4 × 45 s de Spanish squat isométrique et réduis l'amplitude du step-up."
+        },
+        {
+          "name": "Bonds latéraux en patineur, réception stabilisée 2 s",
+          "exerciseId": "plyometric_drills",
+          "sets": 3,
+          "reps": "4 par côté",
+          "restSeconds": 45,
+          "note": "Bloc athlétique. Réception silencieuse, genou aligné sur le 2e orteil."
+        },
+        {
+          "name": "Pogos (petits sauts sur chevilles)",
+          "exerciseId": "plyometric_drills",
+          "sets": 2,
+          "reps": "15",
+          "restSeconds": 45,
+          "note": "Bloc athlétique."
+        },
+        {
+          "name": "Split squat bulgare, 2 haltères",
+          "exerciseId": "bulgarian_split_squat",
+          "sets": 4,
+          "reps": "6-10 par jambe",
+          "restSeconds": 120,
+          "tempo": "3-1-1",
+          "rir": "1-2",
+          "alternative": "Fente arrière en déficit",
+          "note": "Ton exercice roi pour les quadriceps et les fessiers."
+        },
+        {
+          "name": "Soulevé de terre roumain, 2 haltères",
+          "exerciseId": "romanian_deadlift",
+          "sets": 3,
+          "reps": "8-12",
+          "restSeconds": 120,
+          "rir": "2",
+          "alternative": "Roumain une jambe"
+        },
+        {
+          "name": "Squat gobelet talons surélevés",
+          "exerciseId": "goblet_squat",
+          "sets": 3,
+          "reps": "10-15",
+          "restSeconds": 90,
+          "tempo": "3-0-1",
+          "rir": "1-2",
+          "alternative": "Squat gobelet en 1,5 répétition",
+          "note": "Charge volontairement le genou en avant des orteils, de façon progressive : renforce le tendon rotulien."
+        },
+        {
+          "name": "Step-up Peterson (petite marche, genou devant les orteils, talon décollé)",
+          "exerciseId": "step_up",
+          "sets": 3,
+          "reps": "12-15 par jambe",
+          "restSeconds": 60,
+          "rir": "1-2",
+          "alternative": "Step-down lent depuis le banc"
+        },
+        {
+          "name": "Relevé de pointe tibialis, dos au mur",
+          "exerciseId": "tibialis_raise",
+          "sets": 3,
+          "reps": "15-25",
+          "restSeconds": 0,
+          "superset": "5",
+          "rir": "1",
+          "alternative": "Relevé de pointe à l'élastique, assis"
+        },
+        {
+          "name": "Mollet debout une jambe, haltère (pause 2 s en bas)",
+          "exerciseId": "calf_raise",
+          "sets": 3,
+          "reps": "10-15 par jambe",
+          "restSeconds": 60,
+          "superset": "5",
+          "rir": "0-1",
+          "alternative": "Mollet assis haltère sur le genou"
+        },
+        {
+          "name": "Gainage Copenhague sur le banc",
+          "exerciseId": "copenhagen_plank",
+          "sets": 3,
+          "reps": "15-30 s par côté",
+          "restSeconds": 45,
+          "alternative": "Version genou en appui (plus facile)",
+          "note": "Les adducteurs protègent l'aine et l'intérieur du genou dans les appuis latéraux."
+        }
+      ]
+    },
+    {
+      "sessionName": "C · Haut du corps – tirage et rotation",
+      "isRestDay": false,
+      "exercises": [
+        {
+          "name": "Échauffement haut du corps (8 min)",
+          "sets": 1,
+          "reps": "8 min",
+          "restSeconds": 0,
+          "note": "Rotations thoraciques en quadrupédie × 8/côté · passages d'épaules à l'élastique (dislocates) × 10 · pompes scapulaires × 12 · pull-aparts × 15 · rowing léger d'approche."
+        },
+        {
+          "name": "Rotation explosive à l'élastique (mouvement de coup droit)",
+          "exerciseId": "wood_chop",
+          "sets": 3,
+          "reps": "6 par côté",
+          "restSeconds": 45,
+          "note": "Bloc athlétique. Élastique ancré à hauteur de hanche : la hanche lance, les bras suivent."
+        },
+        {
+          "name": "Rowing haltères poitrine en appui sur banc incliné (pause 1 s en haut)",
+          "exerciseId": "barbell_row",
+          "sets": 4,
+          "reps": "8-12",
+          "restSeconds": 120,
+          "rir": "1-2",
+          "alternative": "Rowing un bras"
+        },
+        {
+          "name": "Tirage vertical : tractions (barre de porte) ou tirage à l'élastique à genoux",
+          "exerciseId": "pull_up",
+          "sets": 3,
+          "reps": "6-12 (tractions) ou 12-20 (élastique)",
+          "restSeconds": 120,
+          "rir": "1-2",
+          "alternative": "Pullover haltère sur banc",
+          "note": "Élastique ancré en haut de porte : vérifie la fixation avant chaque série."
+        },
+        {
+          "name": "Développé couché haltères prise neutre",
+          "exerciseId": "bench_press",
+          "sets": 3,
+          "reps": "8-12",
+          "restSeconds": 120,
+          "rir": "2",
+          "alternative": "Pompes déficit lestées"
+        },
+        {
+          "name": "Pullover haltère sur banc",
+          "exerciseId": "pullover",
+          "sets": 3,
+          "reps": "10-15",
+          "restSeconds": 90,
+          "rir": "1-2",
+          "alternative": "Bras tendus à l'élastique (straight-arm pulldown)"
+        },
+        {
+          "name": "Développé un bras à genou levé (half-kneeling)",
+          "exerciseId": "overhead_press",
+          "sets": 3,
+          "reps": "8-12 par bras",
+          "restSeconds": 60,
+          "rir": "1-2",
+          "alternative": "Arnold press assis",
+          "note": "Apprend au tronc à transmettre la force sans compenser au bas du dos, comme lors d'une frappe."
+        },
+        {
+          "name": "Oiseau haltères sur banc incliné (épaules arrière)",
+          "exerciseId": "rear_delt_fly",
+          "sets": 3,
+          "reps": "12-20",
+          "restSeconds": 0,
+          "superset": "6",
+          "rir": "0-1",
+          "alternative": "Face pull à l'élastique"
+        },
+        {
+          "name": "Pallof press à l'élastique (anti-rotation)",
+          "exerciseId": "wood_chop",
+          "sets": 3,
+          "reps": "10 par côté, 2 s tenu",
+          "restSeconds": 60,
+          "superset": "6",
+          "alternative": "Gainage avec tirage haltère"
+        },
+        {
+          "name": "Curl incliné haltères",
+          "exerciseId": "biceps_curl",
+          "sets": 3,
+          "reps": "10-15",
+          "restSeconds": 0,
+          "superset": "7",
+          "rir": "0-1",
+          "alternative": "Curl à l'élastique"
+        },
+        {
+          "name": "Barre au front haltères (skull crusher)",
+          "exerciseId": "skullcrusher",
+          "sets": 3,
+          "reps": "10-15",
+          "restSeconds": 60,
+          "superset": "7",
+          "rir": "1",
+          "alternative": "Extension triceps à l'élastique"
+        },
+        {
+          "name": "Pronation / supination, haltère tenu par un bout",
+          "exerciseId": "wrist_curl",
+          "sets": 2,
+          "reps": "12 par sens",
+          "restSeconds": 30,
+          "rir": "2",
+          "note": "Renforce l'avant-bras, clé contre le tennis elbow."
+        }
+      ]
+    },
+    {
+      "sessionName": "D · Bas du corps – chaîne postérieure",
+      "isRestDay": false,
+      "exercises": [
+        {
+          "name": "Échauffement chaîne postérieure (8 min)",
+          "sets": 1,
+          "reps": "8 min",
+          "restSeconds": 0,
+          "note": "Couch stretch 45 s/côté · world's greatest stretch × 5/côté · bird dog × 8/côté · pont fessier en marche × 10/côté · charnière de hanche à vide × 10. Pas de B ni de D dans les 24 h (idéalement 48 h) avant un match de raquette ou un fractionné intense. GENOU (douleur de 0 à 10) : 0-3 acceptable ; 4-5 réduis l'amplitude ou la charge ; plus de 5 ou douleur aiguë, arrête l'exercice et reste sur le Spanish squat isométrique."
+        },
+        {
+          "name": "Saut en longueur sans élan, réception tenue",
+          "exerciseId": "plyometric_drills",
+          "sets": 3,
+          "reps": "3",
+          "restSeconds": 60,
+          "note": "Bloc athlétique. Objectif : apprendre à freiner."
+        },
+        {
+          "name": "Drop squat (chute rapide en position d'appui, stop net)",
+          "exerciseId": "plyometric_drills",
+          "sets": 3,
+          "reps": "5",
+          "restSeconds": 60,
+          "note": "Bloc athlétique."
+        },
+        {
+          "name": "Soulevé de terre roumain, 2 haltères",
+          "exerciseId": "romanian_deadlift",
+          "sets": 4,
+          "reps": "8-12",
+          "restSeconds": 120,
+          "tempo": "3-1-1",
+          "rir": "1-2",
+          "alternative": "Roumain une jambe (quand 2 × 41 kg devient facile)"
+        },
+        {
+          "name": "Hip thrust une jambe, dos sur le banc, haltère sur la hanche (pause 1 s)",
+          "exerciseId": "hip_thrust",
+          "sets": 3,
+          "reps": "10-15 par jambe",
+          "restSeconds": 90,
+          "rir": "1",
+          "alternative": "Hip thrust deux jambes + élastique"
+        },
+        {
+          "name": "Fente latérale haltère gobelet, vers le squat cosaque",
+          "exerciseId": "lateral_lunge",
+          "sets": 3,
+          "reps": "8 par côté",
+          "restSeconds": 90,
+          "rir": "2",
+          "alternative": "Fente latérale au poids du corps"
+        },
+        {
+          "name": "Nordic curl excentrique (pieds bloqués sous le canapé)",
+          "exerciseId": "nordic_curl",
+          "sets": 3,
+          "reps": "3-6",
+          "restSeconds": 120,
+          "rir": "1-2",
+          "alternative": "Leg curl à l'élastique, allongé",
+          "note": "L'exercice le mieux documenté contre les blessures des ischios."
+        },
+        {
+          "name": "Hyperextension inversée sur le banc",
+          "exerciseId": "reverse_hyper",
+          "sets": 3,
+          "reps": "12-15",
+          "restSeconds": 60,
+          "rir": "2",
+          "alternative": "Superman tenu 3 s",
+          "note": "Ventre sur le banc, jambes levées."
+        },
+        {
+          "name": "Dead bug avec élastique tendu",
+          "exerciseId": "dead_bug",
+          "sets": 3,
+          "reps": "8 par côté",
+          "restSeconds": 0,
+          "superset": "6",
+          "alternative": "Dead bug simple"
+        },
+        {
+          "name": "Gainage latéral",
+          "exerciseId": "side_plank",
+          "sets": 3,
+          "reps": "30-45 s par côté",
+          "restSeconds": 45,
+          "superset": "6",
+          "alternative": "Gainage latéral genoux"
+        },
+        {
+          "name": "Marche de valise (suitcase carry), haltère 30-41 kg",
+          "exerciseId": "farmers_walk",
+          "sets": 3,
+          "reps": "30-40 m par côté",
+          "restSeconds": 60,
+          "alternative": "Marche du fermier (2 haltères)"
+        }
+      ]
+    },
+    {
+      "sessionName": "E · Mobilité et résilience",
+      "isRestDay": false,
+      "optional": true,
+      "exercises": [
+        {
+          "name": "Mobilité : cheville genou-au-mur avec haltère sur le genou",
+          "sets": 2,
+          "reps": "10 par côté",
+          "restSeconds": 0,
+          "note": "Un jour off, ou à la place d'une séance quand tu manques d'énergie. Calmement, en respirant par le ventre. Talon collé au sol, genou au-dessus du 2e orteil."
+        },
+        {
+          "name": "Mobilité : squat profond assisté (mains sur un cadre de porte), décalages latéraux",
+          "sets": 3,
+          "reps": "45-60 s",
+          "restSeconds": 0,
+          "note": "Talons surélevés au début, abaisse la cale au fil des cycles. Objectif : 2 min en squat profond talons au sol."
+        },
+        {
+          "name": "Mobilité : squat gobelet tenu en bas, coudes qui poussent les genoux",
+          "sets": 3,
+          "reps": "30 s",
+          "restSeconds": 0,
+          "note": "Haltère léger (8-12 kg) comme contrepoids."
+        },
+        {
+          "name": "Mobilité : 90/90 avec montée de genou",
+          "sets": 2,
+          "reps": "8 par côté",
+          "restSeconds": 0,
+          "note": "Buste droit, mouvement lent."
+        },
+        {
+          "name": "Mobilité : squat cosaque assisté",
+          "sets": 2,
+          "reps": "6 par côté",
+          "restSeconds": 0,
+          "note": "Pied tendu orienté vers le plafond."
+        },
+        {
+          "name": "Mobilité : progression pistol, s'asseoir sur le banc sur une jambe",
+          "sets": 3,
+          "reps": "5 par jambe",
+          "restSeconds": 0,
+          "note": "Baisse la hauteur de la cible quand c'est maîtrisé. Objectif : pistol squat assisté jusqu'au banc."
+        },
+        {
+          "name": "Mobilité : pigeon au sol ou sur le banc",
+          "sets": 1,
+          "reps": "60 s par côté",
+          "restSeconds": 0,
+          "note": "Expire longuement en descendant."
+        },
+        {
+          "name": "Mobilité : Jefferson curl, haltère 4-8 kg",
+          "sets": 2,
+          "reps": "6 très lents",
+          "restSeconds": 0,
+          "note": "Vertèbre par vertèbre, uniquement sans douleur."
+        },
+        {
+          "name": "Mobilité : glissements au mur (wall slides)",
+          "sets": 2,
+          "reps": "10",
+          "restSeconds": 0,
+          "note": "Bas du dos et bras collés au mur."
+        },
+        {
+          "name": "Respiration 90/90 allongé, pieds sur le banc",
+          "sets": 1,
+          "reps": "2 min",
+          "restSeconds": 0,
+          "note": "Inspire 4 s, expire 6-8 s."
+        }
+      ]
+    },
+    {
+      "sessionName": "Routine anti-bureau (10 min)",
+      "isRestDay": false,
+      "optional": true,
+      "exercises": [
+        {
+          "name": "Mobilité : chat-vache lent",
+          "sets": 1,
+          "reps": "45 s",
+          "restSeconds": 0,
+          "note": "Chaque jour, idéalement en rentrant du travail, sans matériel. Au travail, toutes les 45-60 min : lève-toi 1-2 min, 10 squats au poids du corps et un étirement de hanche debout."
+        },
+        {
+          "name": "Mobilité : rotations thoraciques au sol (open book)",
+          "sets": 1,
+          "reps": "45 s par côté",
+          "restSeconds": 0
+        },
+        {
+          "name": "Mobilité : couch stretch (genou contre le mur ou le canapé, fessier serré)",
+          "sets": 1,
+          "reps": "45 s par côté",
+          "restSeconds": 0
+        },
+        {
+          "name": "Mobilité : 90/90 changements de hanche",
+          "sets": 1,
+          "reps": "1 min",
+          "restSeconds": 0
+        },
+        {
+          "name": "Mobilité : cheville genou-au-mur",
+          "sets": 1,
+          "reps": "45 s par côté",
+          "restSeconds": 0
+        },
+        {
+          "name": "Mobilité : squat profond assisté tenu, avec décalages",
+          "sets": 1,
+          "reps": "1 min",
+          "restSeconds": 0
+        },
+        {
+          "name": "Mobilité : pont fessier tenu 2 s en haut",
+          "sets": 1,
+          "reps": "1 min (environ 15 reps)",
+          "restSeconds": 0
+        },
+        {
+          "name": "Mobilité : glissements au mur",
+          "sets": 1,
+          "reps": "45 s",
+          "restSeconds": 0
+        },
+        {
+          "name": "Respiration ventrale allongé, jambes sur le canapé",
+          "sets": 1,
+          "reps": "1 min",
+          "restSeconds": 0
+        }
+      ]
+    }
+  ]
+}

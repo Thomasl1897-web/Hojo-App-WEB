@@ -19,6 +19,10 @@ export type SportSessionRow = {
   exercises: Exercise[];
   /** Jour de semaine (mode "fixe" uniquement). */
   weekday: Weekday | null;
+  /** Rang dans le programme (ordre de l'enchaînement en mode continu). */
+  position: number;
+  /** Mode continu : séance facultative, hors de l'enchaînement. */
+  isOptional: boolean;
 };
 
 export function initSportSchema() {
@@ -91,6 +95,16 @@ export function initSportSchema() {
   if (!exerciseColumns.some((column) => column.name === 'exercise_id')) {
     db.execSync('ALTER TABLE sport_exercises ADD COLUMN exercise_id TEXT');
   }
+  // Supersets, tempo, RIR et alternative (ajoutés après coup, facultatifs).
+  for (const name of ['superset_group', 'tempo', 'rir', 'alternative']) {
+    if (!exerciseColumns.some((column) => column.name === name)) {
+      db.execSync(`ALTER TABLE sport_exercises ADD COLUMN ${name} TEXT`);
+    }
+  }
+  const sessionColumns = db.getAllSync<{ name: string }>('PRAGMA table_info(sport_sessions)');
+  if (!sessionColumns.some((column) => column.name === 'is_optional')) {
+    db.execSync('ALTER TABLE sport_sessions ADD COLUMN is_optional INTEGER NOT NULL DEFAULT 0');
+  }
   // Activités importées de Health Connect : origine, identifiant de l'enregistrement (pour ne jamais
   // importer deux fois la même) et calories actives. Anciennes lignes : saisies à la main, donc NULL.
   const activityColumns = db.getAllSync<{ name: string }>('PRAGMA table_info(sport_activities)');
@@ -123,18 +137,25 @@ export function importSportPlan(plan: SportPlan) {
       new Date().toISOString(),
     );
 
-    const insertSession = (position: number, weekday: Weekday | null, session: { sessionName: string; isRestDay: boolean; exercises: Exercise[] }) => {
+    const insertSession = (
+      position: number,
+      weekday: Weekday | null,
+      session: { sessionName: string; isRestDay: boolean; exercises: Exercise[]; optional?: boolean },
+    ) => {
       const sessionId = db.runSync(
-        'INSERT INTO sport_sessions (position, weekday, session_name, is_rest_day) VALUES (?, ?, ?, ?)',
+        'INSERT INTO sport_sessions (position, weekday, session_name, is_rest_day, is_optional) VALUES (?, ?, ?, ?, ?)',
         position,
         weekday,
         session.sessionName,
         session.isRestDay ? 1 : 0,
+        session.optional ? 1 : 0,
       ).lastInsertRowId;
 
       session.exercises.forEach((exercise, exPosition) => {
         db.runSync(
-          'INSERT INTO sport_exercises (session_id, position, name, sets, reps, rest_seconds, note, exercise_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          `INSERT INTO sport_exercises
+            (session_id, position, name, sets, reps, rest_seconds, note, exercise_id, superset_group, tempo, rir, alternative)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           sessionId,
           exPosition,
           exercise.name,
@@ -143,6 +164,10 @@ export function importSportPlan(plan: SportPlan) {
           exercise.restSeconds,
           exercise.note ?? null,
           exercise.exerciseId ?? null,
+          exercise.superset ?? null,
+          exercise.tempo ?? null,
+          exercise.rir ?? null,
+          exercise.alternative ?? null,
         );
       });
     };
@@ -169,7 +194,16 @@ export function getActiveSportPlanMeta(): SportPlanMeta | null {
   return { name: row.name, mode: row.mode as SportMode, preferredTime };
 }
 
-type SessionDbRow = { id: number; weekday: string | null; session_name: string; is_rest_day: number };
+type SessionDbRow = {
+  id: number;
+  position: number;
+  weekday: string | null;
+  session_name: string;
+  is_rest_day: number;
+  is_optional: number;
+};
+
+const SESSION_COLUMNS = 'id, position, weekday, session_name, is_rest_day, is_optional';
 type ExerciseDbRow = {
   name: string;
   sets: number;
@@ -177,11 +211,15 @@ type ExerciseDbRow = {
   rest_seconds: number;
   note: string | null;
   exercise_id: string | null;
+  superset_group: string | null;
+  tempo: string | null;
+  rir: string | null;
+  alternative: string | null;
 };
 
 function loadExercises(sessionId: number): Exercise[] {
   const rows = db.getAllSync<ExerciseDbRow>(
-    'SELECT name, sets, reps, rest_seconds, note, exercise_id FROM sport_exercises WHERE session_id = ? ORDER BY position ASC',
+    'SELECT name, sets, reps, rest_seconds, note, exercise_id, superset_group, tempo, rir, alternative FROM sport_exercises WHERE session_id = ? ORDER BY position ASC',
     sessionId,
   );
   return rows.map((r) => ({
@@ -191,6 +229,10 @@ function loadExercises(sessionId: number): Exercise[] {
     restSeconds: r.rest_seconds,
     note: r.note ?? undefined,
     exerciseId: r.exercise_id ?? undefined,
+    superset: r.superset_group ?? undefined,
+    tempo: r.tempo ?? undefined,
+    rir: r.rir ?? undefined,
+    alternative: r.alternative ?? undefined,
   }));
 }
 
@@ -198,6 +240,8 @@ function mapSessionRow(row: SessionDbRow): SportSessionRow {
   return {
     sessionName: row.session_name,
     isRestDay: row.is_rest_day === 1,
+    position: row.position,
+    isOptional: row.is_optional === 1,
     exercises: loadExercises(row.id),
     weekday: (row.weekday as Weekday | null) ?? null,
   };
@@ -208,7 +252,7 @@ export function getSportPlanForEdit(): SportPlan | null {
   const meta = getActiveSportPlanMeta();
   if (!meta) return null;
   const rows = db.getAllSync<SessionDbRow>(
-    'SELECT id, weekday, session_name, is_rest_day FROM sport_sessions ORDER BY position ASC',
+    `SELECT ${SESSION_COLUMNS} FROM sport_sessions ORDER BY position ASC`,
   );
   const sessions = rows.map(mapSessionRow);
   const base = { type: 'sport' as const, name: meta.name, preferredTime: meta.preferredTime };
@@ -227,7 +271,12 @@ export function getSportPlanForEdit(): SportPlan | null {
   return {
     ...base,
     mode: 'continu',
-    sequence: sessions.map((s) => ({ sessionName: s.sessionName, isRestDay: s.isRestDay, exercises: s.exercises })),
+    sequence: sessions.map((s) => ({
+      sessionName: s.sessionName,
+      isRestDay: s.isRestDay,
+      exercises: s.exercises,
+      ...(s.isOptional ? { optional: true } : {}),
+    })),
   };
 }
 
@@ -245,7 +294,7 @@ export function saveEditedSportPlan(plan: SportPlan) {
   if (plan.mode === 'continu' && previousIndex !== undefined) {
     db.runSync(
       'UPDATE sport_progress SET current_index = ? WHERE id = 1',
-      Math.min(previousIndex, plan.sequence.length - 1),
+      Math.min(previousIndex, Math.max(0, plan.sequence.filter((session) => !session.optional).length - 1)),
     );
   }
   if (getSetting(SPORT_REMINDER_TIME_KEY) !== null) setSetting(SPORT_REMINDER_TIME_KEY, plan.preferredTime);
@@ -255,7 +304,7 @@ export function saveEditedSportPlan(plan: SportPlan) {
 function getTodayFixedSession(): SportSessionRow | null {
   const today = getWeekdayLabel();
   const row = db.getFirstSync<SessionDbRow>(
-    'SELECT id, weekday, session_name, is_rest_day FROM sport_sessions WHERE weekday = ?',
+    `SELECT ${SESSION_COLUMNS} FROM sport_sessions WHERE weekday = ?`,
     today,
   );
   return row ? mapSessionRow(row) : null;
@@ -264,15 +313,13 @@ function getTodayFixedSession(): SportSessionRow | null {
 /** Prochaine séance recommandée (mode "continu") — selon la progression, pas le calendrier. */
 function getNextContinuousSession(): SportSessionRow | null {
   const progress = db.getFirstSync<{ current_index: number }>('SELECT current_index FROM sport_progress WHERE id = 1');
-  const count = db.getFirstSync<{ count: number }>('SELECT COUNT(*) as count FROM sport_sessions')?.count ?? 0;
-  if (!progress || count === 0) return null;
-
-  const index = ((progress.current_index % count) + count) % count;
-  const row = db.getFirstSync<SessionDbRow>(
-    'SELECT id, weekday, session_name, is_rest_day FROM sport_sessions WHERE position = ?',
-    index,
+  const rotation = db.getAllSync<SessionDbRow>(
+    `SELECT ${SESSION_COLUMNS} FROM sport_sessions WHERE is_optional = 0 ORDER BY position ASC`,
   );
-  return row ? mapSessionRow(row) : null;
+  if (!progress || rotation.length === 0) return null;
+
+  const index = ((progress.current_index % rotation.length) + rotation.length) % rotation.length;
+  return mapSessionRow(rotation[index]);
 }
 
 /**
@@ -313,13 +360,39 @@ export function completeCurrentSession() {
 
   if (meta.mode !== 'continu') return;
 
-  const count = db.getFirstSync<{ count: number }>('SELECT COUNT(*) as count FROM sport_sessions')?.count ?? 0;
+  const count = db.getFirstSync<{ count: number }>('SELECT COUNT(*) as count FROM sport_sessions WHERE is_optional = 0')?.count ?? 0;
   if (count === 0) return;
 
   db.runSync(
     'UPDATE sport_progress SET current_index = (current_index + 1) % ?, last_completed_at = ? WHERE id = 1',
     count,
     getTodayDateString(),
+  );
+}
+
+/** Séances facultatives du programme (mode continu), dans l'ordre du programme. */
+export function getOptionalSessions(): SportSessionRow[] {
+  return db
+    .getAllSync<SessionDbRow>(`SELECT ${SESSION_COLUMNS} FROM sport_sessions WHERE is_optional = 1 ORDER BY position ASC`)
+    .map(mapSessionRow);
+}
+
+/** Séance à un rang donné du programme (pour lancer une séance facultative). */
+export function getSessionAtPosition(position: number): SportSessionRow | null {
+  const row = db.getFirstSync<SessionDbRow>(`SELECT ${SESSION_COLUMNS} FROM sport_sessions WHERE position = ?`, position);
+  return row ? mapSessionRow(row) : null;
+}
+
+/**
+ * Fin d'une séance facultative : elle compte comme une séance faite ce jour-là (série de semaines, statistiques)
+ * sans faire avancer l'enchaînement, et sans remplacer une séance de l'enchaînement déjà faite le même jour.
+ */
+export function completeOptionalSession(sessionName: string) {
+  clearSessionProgress();
+  db.runSync(
+    'INSERT OR IGNORE INTO sport_session_completions (date, session_name) VALUES (?, ?)',
+    getTodayDateString(),
+    sessionName,
   );
 }
 

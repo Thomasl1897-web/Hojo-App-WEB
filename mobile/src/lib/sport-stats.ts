@@ -191,7 +191,7 @@ export function niceAxis(min: number, max: number, options: { integer?: boolean 
 
 /**
  * Exercices "d'accompagnement" dont on ne suit pas la charge : échauffement, retour au calme,
- * étirements. Reconnus à leur NOM (sans tenir compte des accents ni de la casse) : "Échauffement
+ * étirements, mobilité, respiration. Reconnus à leur NOM (sans tenir compte des accents ni de la casse) : "Échauffement
  * articulaire", "warm-up", "Étirements des ischios"... Ils n'ont rien à faire dans les graphiques
  * de progression, et l'écran de séance ne demande pas de poids pour eux.
  */
@@ -200,5 +200,5 @@ export function isAuxiliaryExercise(name: string): boolean {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
-  return /(^|[^a-z])(echauffement|warm[\s-]?up|retour au calme|cool[\s-]?down|etirements?|stretching)([^a-z]|$)/.test(normalized);
+  return /(^|[^a-z])(echauffement|warm[\s-]?up|retour au calme|cool[\s-]?down|etirements?|stretching|mobilite|mobility|respiration|breathing)([^a-z]|$)/.test(normalized);
 }

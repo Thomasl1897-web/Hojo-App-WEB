@@ -85,7 +85,7 @@ const ENTRIES: Entry[] = [
   ['biceps_curl', 'Curl biceps', 'Biceps curl', ['biceps'], ['forearms'], ['curl', 'curl barre', 'curl halteres', 'curl barre ez', 'bicep curl', 'barbell curl', 'dumbbell curl', 'curl poulie', 'curl incline', 'curl concentre', 'concentration curl']],
   ['hammer_curl', 'Curl marteau', 'Hammer curl', ['biceps', 'forearms'], [], ['marteau', 'hammer curls']],
   ['preacher_curl', 'Curl pupitre', 'Preacher curl', ['biceps'], [], ['pupitre', 'curl larry scott']],
-  ['wrist_curl', 'Curl des poignets', 'Wrist curl', ['forearms'], [], ['curl poignets', 'flexion poignets', 'extension poignets', 'reverse wrist curl']],
+  ['wrist_curl', 'Curl des poignets', 'Wrist curl', ['forearms'], [], ['curl poignets', 'flexion poignets', 'extension poignets', 'reverse wrist curl', 'pronation supination', 'flexion extension poignet']],
 
   // --- Triceps
   ['triceps_pushdown', 'Extension triceps à la poulie', 'Triceps pushdown', ['triceps'], [], ['pushdown', 'extension triceps poulie haute', 'triceps corde', 'triceps rope', 'pushdown corde']],
@@ -137,7 +137,7 @@ const ENTRIES: Entry[] = [
   ['kettlebell_swing', 'Kettlebell swing', 'Kettlebell swing', ['glutes', 'hamstrings'], ['lowerBack', 'shoulders', 'abs'], ['swing kettlebell', 'swing', 'balancier kettlebell']],
   ['power_clean', 'Épaulé (power clean)', 'Power clean', ['hamstrings', 'glutes', 'traps'], ['quads', 'shoulders', 'forearms'], ['epaule jete', 'clean', 'hang clean', 'power clean', 'epaule power clean']],
   ['thruster', 'Thruster', 'Thruster', ['quads', 'shoulders'], ['glutes', 'triceps'], ['thrusters']],
-  ['farmers_walk', 'Marche du fermier', 'Farmer’s walk', ['forearms', 'traps'], ['abs', 'quads', 'glutes'], ['farmer walk', 'farmers carry', 'marche fermier', 'farmer carry']],
+  ['farmers_walk', 'Marche du fermier', 'Farmer’s walk', ['forearms', 'traps'], ['abs', 'quads', 'glutes'], ['farmer walk', 'farmers carry', 'marche fermier', 'farmer carry', 'suitcase carry', 'marche de valise', 'marche valise']],
   ['burpees', 'Burpees', 'Burpees', ['quads', 'chest', 'abs'], ['shoulders', 'triceps', 'glutes', 'hamstrings'], ['burpee']],
   ['jump_rope', 'Corde à sauter', 'Jump rope', ['calves'], ['shoulders', 'forearms', 'quads'], ['saut a la corde', 'skipping corde', 'jump rope']],
   ['jumping_jacks', 'Jumping jacks', 'Jumping jacks', ['calves', 'shoulders'], ['quads', 'glutes'], ['jumping jack', 'pompes sautees', 'sauts etoile']],
@@ -157,7 +157,7 @@ const ENTRIES: Entry[] = [
   ['pistol_squat', 'Squat pistol', 'Pistol squat', ['quads', 'glutes'], ['adductors', 'abs'], ['pistol', 'squat sur une jambe', 'single leg squat']],
   ['jump_squat', 'Squat sauté', 'Jump squat', ['quads', 'glutes'], ['calves', 'hamstrings'], ['squats sautes', 'squat saute', 'jumping squat', 'squats sautes']],
   ['box_jump', 'Saut sur box', 'Box jump', ['quads', 'glutes', 'calves'], ['hamstrings'], ['sauts sur box', 'box jumps', 'saut sur plyo box']],
-  ['lateral_lunge', 'Fente latérale', 'Lateral lunge', ['adductors', 'glutes'], ['quads', 'hamstrings'], ['fentes laterales', 'side lunge', 'curtsy lunge', 'fente croisee']],
+  ['lateral_lunge', 'Fente latérale', 'Lateral lunge', ['adductors', 'glutes'], ['quads', 'hamstrings'], ['fentes laterales', 'side lunge', 'curtsy lunge', 'fente croisee', 'squat cosaque', 'cossack squat']],
   ['glute_ham_raise', 'Glute-ham raise', 'Glute-ham raise', ['hamstrings', 'glutes'], ['lowerBack', 'calves'], ['ghr', 'curl ischio banc']],
   ['reverse_hyper', 'Reverse hyper', 'Reverse hyper', ['glutes', 'lowerBack'], ['hamstrings'], ['hyperextension inversee']],
   ['dead_bug', 'Dead bug', 'Dead bug', ['abs'], ['obliques'], ['insecte mort']],
@@ -175,6 +175,8 @@ const ENTRIES: Entry[] = [
   ['nordic_curl', 'Nordic curl', 'Nordic hamstring curl', ['hamstrings'], ['glutes', 'calves'], ['nordic hamstring curl', 'nordic', 'nordic hamstring', 'curl nordique', 'nordic curl']],
   ['copenhagen_plank', 'Planche Copenhague', 'Copenhagen plank', ['adductors'], ['obliques', 'glutes', 'abs'], ['copenhague', 'copenhagen', 'planche copenhague', 'adduction copenhague']],
   ['external_rotation', "Rotation externe d'épaule", 'Shoulder external rotation', ['shoulders'], [], ['rotation externe', 'rotations externes', 'external rotation', 'rotation externe elastique', 'coiffe des rotateurs']],
+  // Le devant du tibia n'a pas de zone à lui sur la silhouette : il est rattaché au bas de jambe (« mollets »).
+  ['tibialis_raise', 'Relevé de pointe (tibialis)', 'Tibialis raise', ['calves'], [], ['releve de pointe', 'releves de pointes', 'tibialis', 'tibial anterieur', 'tib raise', 'toe raise tibialis']],
   ['plyometric_drills', 'Pliométrie et réceptions', 'Plyometric drills', ['quads', 'glutes', 'calves'], ['hamstrings', 'adductors'], ['pliometrie', 'plyometrics', 'plyo', 'pogo hops', 'pogo', 'snap down', 'snap downs', 'bonds lateraux', 'bond lateral', 'skater jumps', 'receptions']],
 ];
 

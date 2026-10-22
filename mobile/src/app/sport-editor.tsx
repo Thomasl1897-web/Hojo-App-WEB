@@ -28,6 +28,8 @@ export default function SportEditorScreen() {
   });
   const [open, setOpen] = useState<Set<number>>(() => new Set(draft?.mode === 'continu' ? [0] : []));
   const [error, setError] = useState<string | null>(null);
+  // Options repliées d'un exercice (superset, tempo, RIR, alternative), par « séance-exercice ».
+  const [detailsOpen, setDetailsOpen] = useState<Set<string>>(() => new Set());
 
   if (!draft) {
     return (
@@ -132,7 +134,7 @@ export default function SportEditorScreen() {
                 <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
                   {session.isRestDay
                     ? t('Repos')
-                    : `${session.sessionName || t('Sans nom')} · ${t('{count} exercices', { count: session.exercises.length })}`}
+                    : `${session.sessionName || t('Sans nom')} · ${t('{count} exercices', { count: session.exercises.length })}${session.optional ? ` · ${t('facultative')}` : ''}`}
                 </ThemedText>
               </View>
               <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={20} color={theme.textSecondary} />
@@ -158,9 +160,29 @@ export default function SportEditorScreen() {
                     }))
                   }
                 />
+                {!isFixed && !session.isRestDay && (
+                  <ToggleField
+                    label="Séance facultative (hors enchaînement)"
+                    value={Boolean(session.optional)}
+                    onChange={(optional) => updateSession(sessionIndex, (s) => ({ ...s, optional }))}
+                  />
+                )}
 
                 {!session.isRestDay &&
-                  session.exercises.map((exercise, exerciseIndex) => (
+                  session.exercises.map((exercise, exerciseIndex) => {
+                    const detailsKey = `${sessionIndex}-${exerciseIndex}`;
+                    const showDetails = detailsOpen.has(detailsKey);
+                    const summary = [
+                      exercise.superset ? t('Superset {label}', { label: exercise.superset }) : null,
+                      exercise.tempo ? t('Tempo {tempo}', { tempo: exercise.tempo }) : null,
+                      exercise.rir ? t('RIR {rir}', { rir: exercise.rir }) : null,
+                      exercise.alternative ? t('alternative') : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ');
+                    const setField = (field: 'superset' | 'tempo' | 'rir' | 'alternative') => (value: string) =>
+                      updateExercise(sessionIndex, exerciseIndex, (e) => ({ ...e, [field]: value }));
+                    return (
                     <View key={exerciseIndex} style={[styles.exercise, { borderColor: theme.line }]}>
                       <TextField
                         label={t('Exercice {number}', { number: exerciseIndex + 1 })}
@@ -197,6 +219,43 @@ export default function SportEditorScreen() {
                           />
                         </View>
                       </View>
+                      <PressableFeedback
+                        onPress={() =>
+                          setDetailsOpen((current) => {
+                            const next = new Set(current);
+                            if (next.has(detailsKey)) next.delete(detailsKey);
+                            else next.add(detailsKey);
+                            return next;
+                          })
+                        }>
+                        <ThemedText type="small" themeColor="accent">
+                          {`${showDetails ? '▾' : '▸'} ${t('Options : superset, tempo, RIR, alternative')}${summary && !showDetails ? ` (${summary})` : ''}`}
+                        </ThemedText>
+                      </PressableFeedback>
+                      {showDetails && (
+                        <>
+                          <ThemedText type="small" themeColor="textFaint">
+                            {t('Superset : donne la même lettre ou le même numéro à des exercices qui se suivent pour les enchaîner en alternant les séries ; mets le repos sur le dernier.')}
+                          </ThemedText>
+                          <View style={styles.row}>
+                            <View style={styles.cell}>
+                              <TextField label="Superset" value={exercise.superset ?? ''} onChangeText={setField('superset')} placeholder="ex : 5" />
+                            </View>
+                            <View style={styles.cell}>
+                              <TextField label="Tempo" value={exercise.tempo ?? ''} onChangeText={setField('tempo')} placeholder="3-0-1" />
+                            </View>
+                            <View style={styles.cell}>
+                              <TextField label="RIR" value={exercise.rir ?? ''} onChangeText={setField('rir')} placeholder="1-2" />
+                            </View>
+                          </View>
+                          <TextField
+                            label="Alternative"
+                            value={exercise.alternative ?? ''}
+                            onChangeText={setField('alternative')}
+                            placeholder="ex : Pompes pieds surélevés"
+                          />
+                        </>
+                      )}
                       <View style={styles.actions}>
                         <IconAction
                           icon="arrow-up"
@@ -217,7 +276,8 @@ export default function SportEditorScreen() {
                         />
                       </View>
                     </View>
-                  ))}
+                    );
+                  })}
 
                 {!session.isRestDay && (
                   <PressableFeedback
