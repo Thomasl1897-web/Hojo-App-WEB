@@ -1,4 +1,7 @@
 import { Stack } from 'expo-router';
+import { Platform } from 'react-native';
+
+import { WebBackButton } from '@/components/web-back-button';
 
 import { t } from '@/i18n';
 import { useTheme } from '@/hooks/use-theme';
@@ -18,6 +21,8 @@ export default function PreferencesLayout() {
         headerTintColor: theme.accent,
         headerTitleStyle: { color: theme.text },
         headerShadowVisible: false,
+        // Web : sans historique (page ouverte directement), le bouton par défaut n'existe pas et on resterait coincé.
+        ...(Platform.OS === 'web' ? { headerLeft: () => <WebBackButton fallback="/settings" /> } : {}),
         contentStyle: { backgroundColor: theme.background },
       }}>
       <Stack.Screen name="appearance" options={{ title: t('Apparence') }} />

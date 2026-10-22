@@ -1,9 +1,10 @@
 import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { Platform, useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import { WebBackButton } from '@/components/web-back-button';
 import { useTheme } from '@/hooks/use-theme';
 import { t, useLanguage } from '@/i18n';
 import { initBackupSchema } from '@/lib/backup';
@@ -86,16 +87,19 @@ function AppStack() {
     headerShadowVisible: false,
   } as const;
 
+  // Web : bouton « Retour » qui marche aussi quand la page est ouverte directement (voir WebBackButton).
+  const webBack = Platform.OS === 'web' ? ({ headerLeft: () => <WebBackButton fallback="/" /> } as const) : {};
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="onboarding" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
-      <Stack.Screen name="questionnaire" options={{ presentation: 'modal', headerShown: true, title: t('Questionnaire nutrition') }} />
-      <Stack.Screen name="sport-questionnaire" options={{ presentation: 'modal', headerShown: true, title: t('Questionnaire sport') }} />
-      <Stack.Screen name="sport-editor" options={{ ...headerOptions, presentation: 'modal', title: t('Éditer le programme') }} />
+      <Stack.Screen name="questionnaire" options={{ ...webBack, presentation: 'modal', headerShown: true, title: t('Questionnaire nutrition') }} />
+      <Stack.Screen name="sport-questionnaire" options={{ ...webBack, presentation: 'modal', headerShown: true, title: t('Questionnaire sport') }} />
+      <Stack.Screen name="sport-editor" options={{ ...headerOptions, ...webBack, presentation: 'modal', title: t('Éditer le programme') }} />
       <Stack.Screen name="preferences" />
-      <Stack.Screen name="add-activity" options={{ ...headerOptions, presentation: 'modal', title: t('Autre activité') }} />
-      <Stack.Screen name="courses" options={{ ...headerOptions, title: t('Liste de courses') }} />
+      <Stack.Screen name="add-activity" options={{ ...headerOptions, ...webBack, presentation: 'modal', title: t('Autre activité') }} />
+      <Stack.Screen name="courses" options={{ ...headerOptions, ...webBack, title: t('Liste de courses') }} />
       <Stack.Screen name="live-session" options={{ presentation: 'fullScreenModal', headerShown: false }} />
     </Stack>
   );
