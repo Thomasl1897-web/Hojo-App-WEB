@@ -37,3 +37,16 @@ export function formatSetEntry(entry: SetEntry, formatWeight: (kg: number) => st
   if (entry.weight > 0) return formatWeight(entry.weight);
   return `${entry.reps} reps`;
 }
+
+/**
+ * Dernière série déjà faite de cet exercice dans la séance en cours (la plus proche avant `currentSet`), pour
+ * pré-remplir la suivante : on ne retape poids et répétitions que si elles changent. `entered` est indexé par
+ * « exercice-série » (ex. « 3-2 »).
+ */
+export function previousEntry(entered: Record<string, SetEntry>, exerciseIndex: number, currentSet: number): SetEntry | null {
+  for (let set = currentSet - 1; set >= 1; set--) {
+    const found = entered[`${exerciseIndex}-${set}`];
+    if (found) return found;
+  }
+  return null;
+}

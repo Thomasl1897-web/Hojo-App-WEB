@@ -14,7 +14,7 @@ import { useSessionKeepAwake } from '@/hooks/use-session-keep-awake';
 import { useTheme } from '@/hooks/use-theme';
 import { cancelScheduledNotification, scheduleRestEndNotification } from '@/lib/notifications';
 import { nextPosition, restAfter, supersetInfo, type Position } from '@/lib/session-flow';
-import { formatSetEntry, parseSetEntry, parseTargetReps, type SetEntry } from '@/lib/set-entry';
+import { formatSetEntry, parseSetEntry, parseTargetReps, previousEntry, type SetEntry } from '@/lib/set-entry';
 import { formatWeight, isAuxiliaryExercise } from '@/lib/sport-stats';
 import {
   completeCurrentSession,
@@ -62,6 +62,8 @@ export default function LiveSessionScreen() {
   const [typedWeight, setTypedWeight] = useState<{ key: string; value: string } | null>(null);
   const [musclesOpen, setMusclesOpen] = useState(false);
   const [typedReps, setTypedReps] = useState<{ key: string; value: string } | null>(null);
+  // Ce qui a été saisi pendant cette séance, par « exercice-série » : la série suivante reprend ces valeurs.
+  const [entered, setEntered] = useState<Record<string, SetEntry>>({});
   // Où aller après le repos (calculé en validant la série) ; null = fin de séance.
   const [pending, setPending] = useState<Position | null>(null);
 
@@ -90,9 +92,12 @@ export default function LiveSessionScreen() {
   // en cours prend le dessus.
   const weightKey = `${exerciseIndex}-${currentSet}`;
   const lastEntry = lastEntryForSet(lastSessionWeights, currentSet);
-  const prefilledReps = lastEntry?.reps ?? (exercise ? parseTargetReps(exercise.reps) : null);
+  // Priorité : ce qui est tapé > la série d'avant dans cette séance > la même série la dernière fois > la fourchette du programme.
+  const previousInSession = previousEntry(entered, exerciseIndex, currentSet);
+  const prefilled = previousInSession ?? lastEntry;
+  const prefilledReps = prefilled?.reps ?? (exercise ? parseTargetReps(exercise.reps) : null);
   const weightInput =
-    typedWeight?.key === weightKey ? typedWeight.value : lastEntry && lastEntry.weight > 0 ? String(lastEntry.weight) : '';
+    typedWeight?.key === weightKey ? typedWeight.value : prefilled && prefilled.weight > 0 ? String(prefilled.weight) : '';
   const repsInput = typedReps?.key === weightKey ? typedReps.value : prefilledReps !== null ? String(prefilledReps) : '';
   const setWeightInput = (value: string) => setTypedWeight({ key: weightKey, value });
   const setRepsInput = (value: string) => setTypedReps({ key: weightKey, value });
@@ -152,7 +157,10 @@ export default function LiveSessionScreen() {
   async function finishSet() {
     if (!session || !exercise) return;
     const entry = isAuxiliaryExercise(exercise.name) ? null : parseSetEntry(weightInput, repsInput);
-    if (entry) logSetWeight(exercise.name, currentSet, entry.weight, entry.reps);
+    if (entry) {
+      logSetWeight(exercise.name, currentSet, entry.weight, entry.reps);
+      setEntered((current) => ({ ...current, [weightKey]: entry }));
+    }
     // On sauvegarde la position SUIVANTE : si l'utilisateur quitte pendant le repos, il
     // reprendra à la série qu'il doit faire, pas à celle qu'il vient de terminer.
     const next = nextPosition(session.exercises, exerciseIndex, currentSet);
@@ -253,13 +261,14 @@ export default function LiveSessionScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ThemedView style={styles.header}>
-          <ThemedText type="small" themeColor="textSecondary">
+          <ThemedText type="small" themeColor="textSecondary" style={styles.headerTitle}>
             {t('{name} — Exercice {current}/{total}', { name: session.sessionName, current: exerciseIndex + 1, total: session.exercises.length })}
           </ThemedText>
-          <PressableFeedback onPress={handleQuit}>
-            <ThemedText type="small" themeColor="textSecondary">
-              {t('Quitter')}
-            </ThemedText>
+          <PressableFeedback onPress={handleQuit} hitSlop={Spacing.two} style={styles.quitWrap} accessibilityRole="button">
+            <ThemedView type="backgroundElement" style={[styles.quitButton, { borderColor: theme.line }]}>
+              <Ionicons name="close" size={16} color={theme.text} />
+              <ThemedText type="smallBold">{t('Quitter')}</ThemedText>
+            </ThemedView>
           </PressableFeedback>
         </ThemedView>
 
@@ -444,8 +453,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: Spacing.three,
     paddingVertical: Spacing.three,
     backgroundColor: 'transparent',
+  },
+  // Le titre (souvent long) rétrécit et passe à la ligne : le bouton Quitter garde toujours sa place.
+  headerTitle: {
+    flex: 1,
+    flexShrink: 1,
+  },
+  quitWrap: {
+    flexShrink: 0,
+  },
+  quitButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one,
+    borderWidth: 1,
+    borderRadius: Spacing.two,
+    paddingVertical: Spacing.one,
+    paddingHorizontal: Spacing.two,
   },
   centerContent: {
     flex: 1,
@@ -499,7 +526,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     fontSize: 20,
     textAlign: 'center',
-    minWidth: 110,
+    width: 120,
   },
   bigButton: {
     borderRadius: Spacing.three,

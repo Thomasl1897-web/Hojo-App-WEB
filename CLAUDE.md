@@ -1010,6 +1010,10 @@ Ajoutés pour le programme `Documents/Programme Hybrid Athlete – 12 cycles.doc
   cette liste). Onglet Sport : carte « Séances facultatives » avec « Démarrer › » (`/live-session?position=N`) ; finir une facultative
   l'enregistre comme faite ce jour-là (`completeOptionalSession`, `INSERT OR IGNORE` : ne remplace pas une séance de l'enchaînement
   du même jour) SANS faire avancer l'enchaînement
+- **Pré-remplissage** : en séance, la série N reprend le poids et les répétitions de la série N-1 du MÊME exercice saisie dans la
+  séance en cours (`previousEntry`, [set-entry.ts](mobile/src/lib/set-entry.ts), état `entered` indexé « exercice-série ») ; à défaut,
+  la même série de la dernière séance, puis la fourchette du programme. On ne retape que ce qui change. L'en-tête de l'écran de séance
+  laisse son titre (long) passer à la ligne et garde un bouton « Quitter » encadré, toujours visible (avant, il sortait de l'écran)
 - **Éditeur** : « Options : superset, tempo, RIR, alternative » repliable par exercice, « Séance facultative » par séance (continu)
 - **Prompts** : décrivent ces champs (exemple de superset dans le mode continu)
 - `isAuxiliaryExercise` reconnaît aussi « Mobilité » / « mobility » / « Respiration » / « breathing » (pas de charge à saisir)
@@ -1036,7 +1040,7 @@ Passe « moins plat », **JS seulement** (`expo-haptics` et Reanimated sont déj
 - testé : `revealDelay`, réglage haptique (125 tests)
 
 ## Tests automatiques
-Dossier [mobile/tests/](mobile/tests), **149 tests** (`npm test` dans `mobile/`, moins d'une seconde ;
+Dossier [mobile/tests/](mobile/tests), **150 tests** (`npm test` dans `mobile/`, moins d'une seconde ;
 `npm run test:types` vérifie le typage des tests). **Aucune dépendance de test** : Node 24 exécute le
 TypeScript directement (`node --test`), un chargeur ([loader.mjs](mobile/tests/loader.mjs)) résout
 l'alias `@/…` et remplace les modules natifs par des bouchons ([stubs/](mobile/tests/stubs)) :

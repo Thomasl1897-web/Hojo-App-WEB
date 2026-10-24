@@ -4,6 +4,7 @@ import { beforeEach, test } from 'node:test';
 
 import { db } from '@/lib/database';
 import { getCatalogExercise, resolveExercise } from '@/lib/exercise-catalog';
+import { previousEntry } from '@/lib/set-entry';
 import { nextPosition, restAfter, supersetBounds, supersetInfo, type Position } from '@/lib/session-flow';
 import {
   completeCurrentSession,
@@ -161,4 +162,15 @@ test('superset, tempo, RIR, alternative et séance facultative survivent à la b
   db.runSync('UPDATE sport_progress SET current_index = 3 WHERE id = 1');
   saveEditedSportPlan(redone.plan);
   assert.equal(getCurrentSession()!.session.sessionName.slice(0, 1), 'D');
+});
+
+test('série suivante : reprend poids et répétitions de la série précédente de CET exercice', () => {
+  const entered = { '0-1': { weight: 40, reps: 10 }, '0-2': { weight: 42.5, reps: 8 }, '1-1': { weight: 20, reps: 12 } };
+  assert.equal(previousEntry(entered, 0, 1), null, 'première série : rien à reprendre dans la séance');
+  assert.deepEqual(previousEntry(entered, 0, 2), { weight: 40, reps: 10 });
+  assert.deepEqual(previousEntry(entered, 0, 3), { weight: 42.5, reps: 8 }, 'la plus récente avant la série demandée');
+  assert.deepEqual(previousEntry(entered, 1, 2), { weight: 20, reps: 12 });
+  assert.equal(previousEntry(entered, 2, 3), null, 'un autre exercice ne partage rien');
+  // Une série sautée n'empêche pas de reprendre la précédente.
+  assert.deepEqual(previousEntry({ '0-1': { weight: 30, reps: 9 } }, 0, 3), { weight: 30, reps: 9 });
 });
