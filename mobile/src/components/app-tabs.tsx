@@ -9,22 +9,22 @@ import { hapticSelection } from '@/lib/haptics';
 import { t } from '@/i18n';
 import { SectionIcon, type BadgeIcon } from '@/components/section-icon';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 /**
- * Barre d'onglets flottante, aux illustrations en couleur (comme sur la planche d'ambiance).
- * Faite maison avec les composants de navigation "headless" d'expo-router plutôt qu'avec la barre
- * native : celle-ci applique une teinte unie à ses icônes (une illustration deviendrait une
- * silhouette) et ne peut pas flotter. Le prix : plus de comportement natif de la barre.
+ * Barre d'onglets ancrée en bas de l'écran (pleine largeur, jusqu'au bord et sous la zone du geste système),
+ * aux illustrations en couleur (comme sur la planche d'ambiance). Elle ne flotte plus : le contenu s'arrête
+ * à son bord supérieur. Faite maison avec les composants de navigation "headless" d'expo-router plutôt
+ * qu'avec la barre native : celle-ci applique une teinte unie à ses icônes (une illustration deviendrait une
+ * silhouette). Le prix : plus de comportement natif de la barre.
  */
 export default function AppTabs() {
   return (
     <Tabs>
       <TabSlot style={{ flex: 1 }} />
       <TabList asChild>
-        <FloatingTabBar>
+        <BottomTabBar>
           <TabTrigger name="index" href="/" asChild>
             <TabButton label="Aujourd'hui" icon={{ illustration: 'logo' }} />
           </TabTrigger>
@@ -37,7 +37,7 @@ export default function AppTabs() {
           <TabTrigger name="settings" href="/settings" asChild>
             <TabButton label="Réglages" icon={{ vector: 'settings' }} />
           </TabTrigger>
-        </FloatingTabBar>
+        </BottomTabBar>
       </TabList>
     </Tabs>
   );
@@ -91,39 +91,39 @@ function TabButton({
   );
 }
 
-function FloatingTabBar(props: TabListProps) {
+function BottomTabBar(props: TabListProps) {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
 
   return (
-    <View {...props} style={[styles.container, { bottom: Math.max(insets.bottom, 8) + 8 }]}>
-      <ThemedView type="backgroundElement" style={[styles.bar, { borderColor: theme.line }]}>
-        {props.children}
-      </ThemedView>
+    <View
+      {...props}
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.backgroundElement,
+          borderTopColor: theme.line,
+          // Sous la barre : la zone du geste système (iPhone, Android à gestes), sinon un petit espace.
+          paddingBottom: Math.max(insets.bottom, Spacing.one),
+        },
+      ]}>
+      <View style={styles.bar}>{props.children}</View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    left: Spacing.three,
-    right: Spacing.three,
+    width: '100%',
     alignItems: 'center',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingTop: Spacing.one,
   },
   bar: {
     flexDirection: 'row',
     width: '100%',
     maxWidth: 520,
-    borderRadius: 28,
-    borderWidth: 1,
-    paddingVertical: Spacing.one,
     paddingHorizontal: Spacing.two,
-    shadowColor: '#0A2A30',
-    shadowOpacity: 0.14,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 10,
   },
   tab: {
     flex: 1,

@@ -5,6 +5,7 @@ import { Alert, StyleSheet, TextInput, Vibration } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PressableFeedback } from '@/components/pressable-feedback';
+import { SessionScreen } from '@/components/session-screen';
 import { t } from '@/i18n';
 import { ExerciseMusclesModal } from '@/components/exercise-muscles-modal';
 import { ThemedText } from '@/components/themed-text';
@@ -222,20 +223,20 @@ export default function LiveSessionScreen() {
 
   if (!session) {
     return (
-      <ThemedView style={styles.container}>
+      <SessionScreen>
         <SafeAreaView style={styles.safeArea}>
           <ThemedText type="smallBold">{t("Aucune séance trouvée pour aujourd'hui.")}</ThemedText>
           <PressableFeedback onPress={() => router.back()}>
             <ThemedText type="link">{t('Retour')}</ThemedText>
           </PressableFeedback>
         </SafeAreaView>
-      </ThemedView>
+      </SessionScreen>
     );
   }
 
   if (phase === 'finished') {
     return (
-      <ThemedView style={styles.container}>
+      <SessionScreen>
         <SafeAreaView style={styles.safeArea}>
           <ThemedView style={styles.centerContent}>
             <ThemedText type="title" style={styles.centerText}>
@@ -251,14 +252,14 @@ export default function LiveSessionScreen() {
             </PressableFeedback>
           </ThemedView>
         </SafeAreaView>
-      </ThemedView>
+      </SessionScreen>
     );
   }
 
   if (!exercise) return null;
 
   return (
-    <ThemedView style={styles.container}>
+    <SessionScreen>
       <SafeAreaView style={styles.safeArea}>
         <ThemedView style={styles.header}>
           <ThemedText type="small" themeColor="textSecondary" style={styles.headerTitle}>
@@ -426,7 +427,7 @@ export default function LiveSessionScreen() {
         exerciseId={exercise.exerciseId}
         onClose={() => setMusclesOpen(false)}
       />
-    </ThemedView>
+    </SessionScreen>
   );
 }
 

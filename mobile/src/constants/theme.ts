@@ -105,8 +105,11 @@ export const Spacing = {
   six: 64,
 } as const;
 
-/** Espace à réserver en bas de chaque écran d'onglet : la barre d'onglets flotte par-dessus le contenu. */
-export const BottomTabInset = 112;
+/**
+ * Espace supplémentaire à réserver en bas de chaque écran d'onglet. La barre d'onglets est ancrée sous le
+ * contenu (elle ne le recouvre plus) : il n'y a rien à réserver, seule la marge habituelle reste.
+ */
+export const BottomTabInset = 0;
 export const MaxContentWidth = 800;
 
 /** Voile sombre derrière une fenêtre (calendrier, détail d'un repas), identique dans les deux thèmes. */

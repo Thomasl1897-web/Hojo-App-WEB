@@ -493,7 +493,11 @@ et la suivante), qui cale la parité. Une heure de rappel commune, 19:00 par dé
 ## Structure des onglets (refonte d'après la planche d'ambiance)
 Quatre onglets : **Aujourd'hui · Nutrition · Sport · Réglages** (l'onglet "Plan" est devenu
 "Nutrition", "Paramètres" est devenu "Réglages"). Demandé par l'utilisateur pour se rapprocher de la planche d'ambiance.
-- **Barre d'onglets flottante maison** ([app-tabs.tsx](mobile/src/components/app-tabs.tsx)), avec les
+- **Barre d'onglets ancrée en bas** (Android, iOS et web ; elle flottait avant, changé à la demande de l'utilisateur) : pleine largeur,
+  jusqu'au bord de l'écran et sous la zone du geste système (`insets.bottom`), fond `backgroundElement` et filet en haut ; le contenu
+  s'arrête à son bord supérieur (elle ne le recouvre plus), donc `BottomTabInset` vaut 0 et la montagne de Aujourd'hui est posée
+  juste au-dessus (`bottom: 0`). Le reste de ce paragraphe (illustrations, rebond, composants « headless ») reste vrai.
+- **Barre d'onglets maison** ([app-tabs.tsx](mobile/src/components/app-tabs.tsx)), avec les
   **illustrations en couleur** comme icônes (logo = Aujourd'hui, assiette = Nutrition, haltère =
   Sport ; Réglages a un rouage plein Ionicons). **Pas de pastille sur l'onglet actif** : son
   illustration est en couleur et son libellé en gras ; les autres sont grisées et atténuées
@@ -1038,6 +1042,14 @@ Passe « moins plat », **JS seulement** (`expo-haptics` et Reanimated sont déj
 - barre d'onglets : rebond de l'illustration + clic de sélection au changement d'onglet ; graphique : clic en touchant un point ;
   séance en direct : vibration de réussite à la validation d'une série ; Aujourd'hui : tirer pour actualiser (synchro Health Connect)
 - testé : `revealDelay`, réglage haptique (125 tests)
+
+## Fond de l'écran de séance
+[session-screen.tsx](mobile/src/components/session-screen.tsx) (`SessionScreen`, enveloppe des trois états de
+[live-session.tsx](mobile/src/app/live-session.tsx) : séance, fin, séance introuvable) : brume et montagnes calées en bas
+(`contentFit="cover"` + `contentPosition="bottom"`, donc valable pour tout écran). `Design/workout_background_1179x2556.png` et
+`..._1290x2796.png` sont le MÊME dessin à deux tailles d'iPhone : une seule image suffit, `assets/images/workout-background.jpg`
+(1179x2556 en JPEG, 91 Ko). L'image est claire : en thème sombre elle n'est qu'à 10 % d'opacité (sinon le fond devient gris et
+tranche avec le reste de l'app). Vérifié dans le navigateur en thème clair et sombre.
 
 ## Tests automatiques
 Dossier [mobile/tests/](mobile/tests), **150 tests** (`npm test` dans `mobile/`, moins d'une seconde ;
